@@ -298,7 +298,7 @@ class Converter2544:
                                 stop_value=hvr.stop_value,
                                 step_value=hvr.step_value,
                                 action=self.module.ModifierActionOption[
-                                    hvr.action.name
+                                    hvr.action.name.lower()
                                 ],
                                 reset_for_each_port=hvr.reset_for_each_port,
                                 # bit_length=bit_length,

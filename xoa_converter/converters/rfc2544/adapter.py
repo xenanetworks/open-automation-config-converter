@@ -1,12 +1,16 @@
 import hashlib
-import types 
+from itertools import count
+import types
+from pathlib import Path
 from decimal import Decimal
+from loguru import logger
 from typing import Dict, List, Union, TYPE_CHECKING
 from .model import (
     LegacyModel2544 as old_model,
     LegacyFrameSizesOptions,
 )
 from ..common import (
+    LegacySegment,
     TestParameters,
     PortIdentity,
 )
@@ -260,30 +264,46 @@ class Converter2544:
             count += 1
         return port_identity
 
+    def __load_segment_json(self, segment_type: str) -> LegacySegment:
+        return LegacySegment.parse_file(f'{Path(__file__).parent.resolve()}/segment_refs/{segment_type}.json')
+
+    def __update_legacy_segment_field(self, segment_binary_value: str, segment: LegacySegment) -> None:
+        for field in segment.protocol_fields:
+            segment_binary_value = segment_binary_value[:field.bit_length]
+            field.field_value = segment_binary_value
+
     def __gen_profile(self) -> Dict:
         stream_profile_handler = self.data.stream_profile_handler
         protocol_segments_profile = {}
+
         for profile in stream_profile_handler.entity_list:
-            header_segments: List = []
+            header_segments = []
+
+            total_bit_length = 0
             for hs in profile.stream_config.header_segments:
-                hw_modifiers: List = []
-                field_value_ranges: List = []
+                logger.debug(hs)
+                legacy_segment = self.__load_segment_json(hs.segment_type.value)
+                logger.debug(legacy_segment)
+
+                binary_string_value = bin(int(hs.segment_value, 16))[2:].zfill(8)
+                self.__update_legacy_segment_field(binary_string_value, legacy_segment)
+
+                fields = []
+                hw_modifiers = {}
+                field_value_ranges = {}
+
                 for hm in profile.stream_config.hw_modifiers:
                     if hm.segment_id == hs.item_id:
-
-                        hw_modifiers.append(
-                            self.module.HwModifier.construct(
-                                field_name=hm.field_name,
-                                mask=hm.mask,
-                                action=self.module.ModifierActionOption[
-                                    hm.action.name.lower()
-                                ],
+                        hw_modifiers[hm.field_name] = self.module.HwModifier.construct(
                                 start_value=hm.start_value,
                                 stop_value=hm.stop_value,
                                 step_value=hm.step_value,
-                                repeat_count=hm.repeat_count,
-                                count=0,
-                                offset=hm.offset,
+                                repeat=hm.repeat_count,
+                                action=self.module.ModifierActionOption[
+                                    hm.action.name.lower()
+                                ],
+                                pos
+                                mask=hm.mask,
                             )
                         )
                 for hvr in profile.stream_config.field_value_ranges:
@@ -305,7 +325,7 @@ class Converter2544:
                             )
                         )
                 header_segments.append(
-                    self.module.HeaderSegment.construct(
+                    self.module.Segment.construct(
                         segment_type=self.module.SegmentType[
                             hs.segment_type.name.lower()
                         ],

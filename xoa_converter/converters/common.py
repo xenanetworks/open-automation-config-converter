@@ -1,4 +1,5 @@
 from typing import (
+    Any,
     Dict,
     List,
     Optional,
@@ -36,9 +37,7 @@ class TestParameters(BaseModel):
 class LegacySegmentField(BaseModel):
     name: str = Field(alias='Name')
     bit_length: int = Field(alias='BitLength')
-    display_type: str = Field(alias='DisplayType')
-    default_value: str = Field(alias='DefaultValue')
-    value_map_name: Optional[str] = Field(None, alias='ValueMapName')
+    bit_position: Optional[int] = None # position of current segment
 
 
 class LegacySegment(BaseModel):
@@ -46,4 +45,15 @@ class LegacySegment(BaseModel):
     description: str = Field(alias='Description')
     segment_type: str = Field(alias='SegmentType')
     enclosed_type_index: int = Field(alias='EnclosedTypeIndex')
+    checksum_offset: Optional[int] = Field(alias='ChecksumOffset')
     protocol_fields: List[LegacySegmentField] = Field(alias='ProtocolFields')
+
+    def calc_field_position(self) -> None:
+        bit_position_count = 0
+        for field in self.protocol_fields:
+            field.bit_position = bit_position_count
+            bit_position_count += field.bit_length
+
+    def __init__(self, **data: Any):
+        super().__init__(**data)
+        self.calc_field_position()

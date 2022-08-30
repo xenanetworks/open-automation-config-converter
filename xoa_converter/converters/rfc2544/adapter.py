@@ -4,7 +4,7 @@ import types
 from pathlib import Path
 from decimal import Decimal
 from loguru import logger
-from typing import Dict, List, Union, TYPE_CHECKING
+from typing import Any, Dict, List, Union, TYPE_CHECKING
 from .model import (
     LegacyModel2544 as old_model,
     LegacyFrameSizesOptions,
@@ -267,34 +267,36 @@ class Converter2544:
     def __load_segment_json(self, segment_type: str) -> LegacySegment:
         return LegacySegment.parse_file(f'{Path(__file__).parent.resolve()}/segment_refs/{segment_type}.json')
 
-    def __update_legacy_segment_field(self, segment_binary_value: str, segment: LegacySegment) -> None:
+    def __convert_legacy_segment_field(self, segment_binary_value: str, segment: LegacySegment) -> List[Any]:
+        converted_fields = []
         for field in segment.protocol_fields:
             segment_binary_value = segment_binary_value[:field.bit_length]
-            field.field_value = segment_binary_value
+
+            converted_fields.append(
+                self.module.SegmentField.construct(
+                    name=field.name,
+                    value=segment_binary_value,
+                    bit_length=field.bit_length,
+                    bit_segment_position=field.bit_position,
+                )
+            )
+        return converted_fields
 
     def __gen_profile(self) -> Dict:
         stream_profile_handler = self.data.stream_profile_handler
         protocol_segments_profile = {}
 
         for profile in stream_profile_handler.entity_list:
+            header_segments_bit_length = 0
             header_segments = []
 
-            total_bit_length = 0
             for hs in profile.stream_config.header_segments:
-                logger.debug(hs)
-                legacy_segment = self.__load_segment_json(hs.segment_type.value)
-                logger.debug(legacy_segment)
-
-                binary_string_value = bin(int(hs.segment_value, 16))[2:].zfill(8)
-                self.__update_legacy_segment_field(binary_string_value, legacy_segment)
-
-                fields = []
                 hw_modifiers = {}
                 field_value_ranges = {}
 
                 for hm in profile.stream_config.hw_modifiers:
                     if hm.segment_id == hs.item_id:
-                        hw_modifiers[hm.field_name] = self.module.HwModifier.construct(
+                        hw_modifiers[hm.field_name] = self.module.HWModifier.construct(
                                 start_value=hm.start_value,
                                 stop_value=hm.stop_value,
                                 step_value=hm.step_value,
@@ -302,17 +304,11 @@ class Converter2544:
                                 action=self.module.ModifierActionOption[
                                     hm.action.name.lower()
                                 ],
-                                pos
                                 mask=hm.mask,
                             )
-                        )
                 for hvr in profile.stream_config.field_value_ranges:
                     if hvr.segment_id == hs.item_id:
-                        # bit_length = get_field_bit_length(
-                        #     hs.segment_type, hvr.field_name
-                        # )
-                        field_value_ranges.append(
-                            self.module.FieldValueRange.construct(
+                        field_value_ranges[hvr.field_name] = self.module.ValueRange.construct(
                                 field_name=hvr.field_name,
                                 start_value=hvr.start_value,
                                 stop_value=hvr.stop_value,
@@ -321,19 +317,47 @@ class Converter2544:
                                     hvr.action.name.lower()
                                 ],
                                 reset_for_each_port=hvr.reset_for_each_port,
-                                # bit_length=bit_length,
                             )
+
+                legacy_segment = self.__load_segment_json(hs.segment_type.value)
+                logger.debug(legacy_segment)
+
+                binary_string_value = bin(int(hs.segment_value, 16))[2:].zfill(8)
+
+                converted_fields = []
+                for field in legacy_segment.protocol_fields:
+
+                    modifier = hw_modifiers.get(field.name)
+                    if modifier:
+                        modifier.position = header_segments_bit_length + field.bit_length
+                        if modifier.field_name in ("Src IP Addr", "Dest IP Addr"):
+                            modifier.position = field.bit_length
+
+                    value_range = field_value_ranges.get(field.name)
+                    if value_range:
+                        value_range.position = header_segments_bit_length + field.bit_length
+
+                    binary_string_value = binary_string_value[:field.bit_length]
+                    converted_fields.append(
+                        self.module.SegmentField.construct(
+                            name=field.name,
+                            value=binary_string_value,
+                            bit_length=field.bit_length,
+                            bit_segment_position=field.bit_position,
+                            hw_modifier=modifier,
+                            value_range=value_range,
                         )
-                header_segments.append(
-                    self.module.Segment.construct(
-                        segment_type=self.module.SegmentType[
-                            hs.segment_type.name.lower()
-                        ],
-                        segment_value=hs.segment_value,
-                        field_value_ranges=field_value_ranges,
-                        hw_modifiers=hw_modifiers,
                     )
+                    header_segments_bit_length += field.bit_length
+
+                segment = self.module.Segment.construct(
+                    segment_type=self.module.SegmentType[hs.segment_type.name.lower()],
+                    fields=converted_fields,
+                    checksum_offset=legacy_segment.checksum_offset,
                 )
+                logger.debug(segment)
+                header_segments.append(segment)
+
             protocol_segments_profile[
                 profile.item_id
             ] = self.module.ProtocolSegmentProfileConfig.construct(

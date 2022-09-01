@@ -542,8 +542,8 @@
         "raw_64"
       ]
     },
-    "EnumActions": {
-      "title": "EnumActions",
+    "ModifierActionOption": {
+      "title": "ModifierActionOption",
       "description": "An enumeration.",
       "enum": [
         "increment",
@@ -572,7 +572,7 @@
           "type": "integer"
         },
         "action": {
-          "$ref": "#/definitions/EnumActions"
+          "$ref": "#/definitions/ModifierActionOption"
         },
         "position": {
           "title": "Position",
@@ -581,16 +581,6 @@
         "mask": {
           "title": "Mask",
           "type": "string"
-        },
-        "bit_segment_position": {
-          "title": "Bit Segment Position",
-          "default": 0,
-          "type": "integer"
-        },
-        "bit_packet_position": {
-          "title": "Bit Packet Position",
-          "default": 0,
-          "type": "integer"
         }
       },
       "required": [
@@ -620,19 +610,11 @@
           "type": "integer"
         },
         "action": {
-          "$ref": "#/definitions/EnumActions"
+          "$ref": "#/definitions/ModifierActionOption"
         },
         "restart_for_each_port": {
           "title": "Restart For Each Port",
           "type": "boolean"
-        },
-        "bit_segment_position": {
-          "title": "Bit Segment Position",
-          "type": "integer"
-        },
-        "bit_length": {
-          "title": "Bit Length",
-          "type": "integer"
         },
         "current_count": {
           "title": "Current Count",
@@ -645,9 +627,7 @@
         "step_value",
         "stop_value",
         "action",
-        "restart_for_each_port",
-        "bit_segment_position",
-        "bit_length"
+        "restart_for_each_port"
       ]
     },
     "SegmentField": {
@@ -660,7 +640,6 @@
         },
         "value": {
           "title": "Value",
-          "default": "",
           "type": "string"
         },
         "bit_length": {
@@ -669,6 +648,7 @@
         },
         "bit_segment_position": {
           "title": "Bit Segment Position",
+          "default": 0,
           "type": "integer"
         },
         "hw_modifier": {
@@ -681,12 +661,11 @@
       "required": [
         "name",
         "value",
-        "bit_length",
-        "bit_segment_position"
+        "bit_length"
       ]
     },
-    "Segment": {
-      "title": "Segment",
+    "ProtocolSegment": {
+      "title": "ProtocolSegment",
       "type": "object",
       "properties": {
         "segment_type": {
@@ -702,12 +681,21 @@
         "checksum_offset": {
           "title": "Checksum Offset",
           "type": "integer"
+        },
+        "is_field_src_value_all_zero": {
+          "title": "Is Field Src Value All Zero",
+          "default": false,
+          "type": "boolean"
+        },
+        "is_field_dst_value_all_zero": {
+          "title": "Is Field Dst Value All Zero",
+          "default": false,
+          "type": "boolean"
         }
       },
       "required": [
         "segment_type",
-        "fields",
-        "checksum_offset"
+        "fields"
       ]
     },
     "ProtocolSegmentProfileConfig": {
@@ -719,7 +707,7 @@
           "default": [],
           "type": "array",
           "items": {
-            "$ref": "#/definitions/Segment"
+            "$ref": "#/definitions/ProtocolSegment"
           }
         }
       }

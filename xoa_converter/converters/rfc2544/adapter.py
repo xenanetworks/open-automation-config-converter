@@ -1,3 +1,4 @@
+import base64
 import hashlib
 from itertools import count
 import types
@@ -287,7 +288,6 @@ class Converter2544:
         protocol_segments_profile = {}
 
         for profile in stream_profile_handler.entity_list:
-            header_segments_bit_length = 0
             header_segments = []
 
             for hs in profile.stream_config.header_segments:
@@ -316,41 +316,29 @@ class Converter2544:
                                 action=self.module.ModifierActionOption[
                                     hvr.action.name.lower()
                                 ],
-                                reset_for_each_port=hvr.reset_for_each_port,
+                                restart_for_each_port=hvr.reset_for_each_port,
                             )
-
                 legacy_segment = self.__load_segment_json(hs.segment_type.value)
-                logger.debug(legacy_segment)
 
-                binary_string_value = bin(int(hs.segment_value, 16))[2:].zfill(8)
-
+                segment_value = base64.b64decode(hs.segment_value).hex()
+                segment_value = bin(int('1'+segment_value, 16))[3:]
+                logger.debug(segment_value)
                 converted_fields = []
+
                 for field in legacy_segment.protocol_fields:
-
-                    modifier = hw_modifiers.get(field.name)
-                    if modifier:
-                        modifier.position = header_segments_bit_length + field.bit_length
-                        if modifier.field_name in ("Src IP Addr", "Dest IP Addr"):
-                            modifier.position = field.bit_length
-
-                    value_range = field_value_ranges.get(field.name)
-                    if value_range:
-                        value_range.position = header_segments_bit_length + field.bit_length
-
-                    binary_string_value = binary_string_value[:field.bit_length]
                     converted_fields.append(
                         self.module.SegmentField.construct(
                             name=field.name,
-                            value=binary_string_value,
+                            value=segment_value[:field.bit_length],
                             bit_length=field.bit_length,
                             bit_segment_position=field.bit_position,
-                            hw_modifier=modifier,
-                            value_range=value_range,
+                            hw_modifier=hw_modifiers.get(field.name),
+                            value_range=field_value_ranges.get(field.name),
                         )
                     )
-                    header_segments_bit_length += field.bit_length
+                    segment_value = segment_value[field.bit_length:]
 
-                segment = self.module.Segment.construct(
+                segment = self.module.ProtocolSegment.construct(
                     segment_type=self.module.SegmentType[hs.segment_type.name.lower()],
                     fields=converted_fields,
                     checksum_offset=legacy_segment.checksum_offset,

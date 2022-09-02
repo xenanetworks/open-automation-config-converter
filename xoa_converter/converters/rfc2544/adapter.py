@@ -1,19 +1,15 @@
-import base64
 import hashlib
-from itertools import count
 import types
-from pathlib import Path
 from decimal import Decimal
-from loguru import logger
-from typing import Any, Dict, List, Union, TYPE_CHECKING
+from typing import Dict, Union, TYPE_CHECKING
 from .model import (
     LegacyModel2544 as old_model,
     LegacyFrameSizesOptions,
 )
 from ..common import (
-    LegacySegment,
     TestParameters,
     PortIdentity,
+    convert_protocol_segments,
 )
 
 if TYPE_CHECKING:
@@ -265,94 +261,6 @@ class Converter2544:
             count += 1
         return port_identity
 
-    def __load_segment_json(self, segment_type: str) -> LegacySegment:
-        return LegacySegment.parse_file(f'{Path(__file__).parent.resolve()}/segment_refs/{segment_type}.json')
-
-    def __convert_legacy_segment_field(self, segment_binary_value: str, segment: LegacySegment) -> List[Any]:
-        converted_fields = []
-        for field in segment.protocol_fields:
-            segment_binary_value = segment_binary_value[:field.bit_length]
-
-            converted_fields.append(
-                self.module.SegmentField.construct(
-                    name=field.name,
-                    value=segment_binary_value,
-                    bit_length=field.bit_length,
-                    bit_segment_position=field.bit_position,
-                )
-            )
-        return converted_fields
-
-    def __gen_profile(self) -> Dict:
-        stream_profile_handler = self.data.stream_profile_handler
-        protocol_segments_profile = {}
-
-        for profile in stream_profile_handler.entity_list:
-            header_segments = []
-
-            for hs in profile.stream_config.header_segments:
-                hw_modifiers = {}
-                field_value_ranges = {}
-
-                for hm in profile.stream_config.hw_modifiers:
-                    if hm.segment_id == hs.item_id:
-                        hw_modifiers[hm.field_name] = self.module.HWModifier.construct(
-                                start_value=hm.start_value,
-                                stop_value=hm.stop_value,
-                                step_value=hm.step_value,
-                                repeat=hm.repeat_count,
-                                action=self.module.ModifierActionOption[
-                                    hm.action.name.lower()
-                                ],
-                                mask=hm.mask,
-                            )
-                for hvr in profile.stream_config.field_value_ranges:
-                    if hvr.segment_id == hs.item_id:
-                        field_value_ranges[hvr.field_name] = self.module.ValueRange.construct(
-                                field_name=hvr.field_name,
-                                start_value=hvr.start_value,
-                                stop_value=hvr.stop_value,
-                                step_value=hvr.step_value,
-                                action=self.module.ModifierActionOption[
-                                    hvr.action.name.lower()
-                                ],
-                                restart_for_each_port=hvr.reset_for_each_port,
-                            )
-                legacy_segment = self.__load_segment_json(hs.segment_type.value)
-
-                segment_value = base64.b64decode(hs.segment_value).hex()
-                segment_value = bin(int('1'+segment_value, 16))[3:]
-                logger.debug(segment_value)
-                converted_fields = []
-
-                for field in legacy_segment.protocol_fields:
-                    converted_fields.append(
-                        self.module.SegmentField.construct(
-                            name=field.name,
-                            value=segment_value[:field.bit_length],
-                            bit_length=field.bit_length,
-                            bit_segment_position=field.bit_position,
-                            hw_modifier=hw_modifiers.get(field.name),
-                            value_range=field_value_ranges.get(field.name),
-                        )
-                    )
-                    segment_value = segment_value[field.bit_length:]
-
-                segment = self.module.ProtocolSegment.construct(
-                    segment_type=self.module.SegmentType[hs.segment_type.name.lower()],
-                    fields=converted_fields,
-                    checksum_offset=legacy_segment.checksum_offset,
-                )
-                logger.debug(segment)
-                header_segments.append(segment)
-
-            protocol_segments_profile[
-                profile.item_id
-            ] = self.module.ProtocolSegmentProfileConfig.construct(
-                header_segments=header_segments
-            )
-        return protocol_segments_profile
-
     def __gen_ipv4_addr(self, entity: "LegacyPortEntity"):
         return self.module.IPV4AddressProperties.construct(
             address=entity.ip_v4_address,
@@ -428,7 +336,7 @@ class Converter2544:
         port_identities = self.__gen_port_identity()
         test_conf = self.__gen_test_config()
         config = self.module.PluginModel2544.construct(
-            protocol_segments=self.__gen_profile(),
+            protocol_segments=convert_protocol_segments(self.data.stream_profile_handler, self.module),
             test_configuration=test_conf,
             test_types_configuration=self.__gen_test_type_config(),
             ports_configuration=self.__generate_port_config(),

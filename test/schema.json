@@ -574,13 +574,13 @@
         "action": {
           "$ref": "#/definitions/ModifierActionOption"
         },
-        "position": {
-          "title": "Position",
-          "type": "integer"
-        },
         "mask": {
           "title": "Mask",
           "type": "string"
+        },
+        "byte_segment_position": {
+          "title": "Byte Segment Position",
+          "type": "integer"
         }
       },
       "required": [
@@ -589,7 +589,6 @@
         "stop_value",
         "repeat",
         "action",
-        "position",
         "mask"
       ]
     },
@@ -682,13 +681,13 @@
           "title": "Checksum Offset",
           "type": "integer"
         },
-        "is_field_src_value_all_zero": {
-          "title": "Is Field Src Value All Zero",
+        "can_set_field_src": {
+          "title": "Can Set Field Src",
           "default": false,
           "type": "boolean"
         },
-        "is_field_dst_value_all_zero": {
-          "title": "Is Field Dst Value All Zero",
+        "can_set_field_dst": {
+          "title": "Can Set Field Dst",
           "default": false,
           "type": "boolean"
         }

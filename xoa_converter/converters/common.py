@@ -120,7 +120,6 @@ def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandle
                         name=field.name,
                         value=segment_value[:field.bit_length],
                         bit_length=field.bit_length,
-                        bit_segment_position=field.bit_position,
                         hw_modifier=hw_modifiers.get(field.name),
                         value_range=field_value_ranges.get(field.name),
                     )

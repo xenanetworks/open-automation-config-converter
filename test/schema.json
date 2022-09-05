@@ -571,16 +571,16 @@
           "title": "Repeat",
           "type": "integer"
         },
+        "offset": {
+          "title": "Offset",
+          "type": "integer"
+        },
         "action": {
           "$ref": "#/definitions/ModifierActionOption"
         },
         "mask": {
           "title": "Mask",
           "type": "string"
-        },
-        "byte_segment_position": {
-          "title": "Byte Segment Position",
-          "type": "integer"
         }
       },
       "required": [
@@ -588,6 +588,7 @@
         "step_value",
         "stop_value",
         "repeat",
+        "offset",
         "action",
         "mask"
       ]
@@ -614,11 +615,6 @@
         "restart_for_each_port": {
           "title": "Restart For Each Port",
           "type": "boolean"
-        },
-        "current_count": {
-          "title": "Current Count",
-          "default": 0,
-          "type": "integer"
         }
       },
       "required": [
@@ -643,11 +639,6 @@
         },
         "bit_length": {
           "title": "Bit Length",
-          "type": "integer"
-        },
-        "bit_segment_position": {
-          "title": "Bit Segment Position",
-          "default": 0,
           "type": "integer"
         },
         "hw_modifier": {
@@ -680,16 +671,6 @@
         "checksum_offset": {
           "title": "Checksum Offset",
           "type": "integer"
-        },
-        "can_set_field_src": {
-          "title": "Can Set Field Src",
-          "default": false,
-          "type": "boolean"
-        },
-        "can_set_field_dst": {
-          "title": "Can Set Field Dst",
-          "default": false,
-          "type": "boolean"
         }
       },
       "required": [

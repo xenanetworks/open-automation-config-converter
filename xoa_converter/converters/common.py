@@ -17,6 +17,10 @@ if TYPE_CHECKING:
     from types import ModuleType
 
 
+CURRENT_FILE_PARENT_PATH = Path(__file__).parent.resolve()
+SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / 'segment_refs'
+
+
 class PortIdentity(BaseModel):
     tester_id: str
     tester_index: int
@@ -66,6 +70,11 @@ class SegmentRef(BaseModel):
         self.calc_field_position()
 
 
+def load_segment_refs_json(segment_type_value: str) -> SegmentRef:
+    segment_ref = SegmentRef.parse_file(SEGMENT_REFS_FOLDER / f'{segment_type_value}.json')
+    return segment_ref
+
+
 def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandler", target_module: "ModuleType") -> Dict:
     protocol_segments_profile = {}
 
@@ -75,7 +84,6 @@ def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandle
         for hs in profile.stream_config.header_segments:
             hw_modifiers = {}
             field_value_ranges = {}
-
             for hm in profile.stream_config.hw_modifiers:
                 if hm.segment_id == hs.item_id:
                     hw_modifiers[hm.field_name] = target_module.HWModifier.construct(
@@ -86,7 +94,8 @@ def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandle
                         action=target_module.ModifierActionOption[
                             hm.action.name.lower()
                         ],
-                        mask=hm.mask,
+                        mask=f"{base64.b64decode(hm.mask).hex()}0000",
+                        offset=hm.offset,
                     )
             for hvr in profile.stream_config.field_value_ranges:
                 if hvr.segment_id == hs.item_id:
@@ -101,7 +110,7 @@ def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandle
                         restart_for_each_port=hvr.reset_for_each_port,
                     )
 
-            segment_ref = SegmentRef.parse_file(f'{Path(__file__).parent.resolve()}/segment_refs/{hs.segment_type.value}.json')
+            segment_ref = load_segment_refs_json(hs.segment_type.value)
             segment_value = bin(int('1'+base64.b64decode(hs.segment_value).hex(), 16))[3:]
             converted_fields = []
 

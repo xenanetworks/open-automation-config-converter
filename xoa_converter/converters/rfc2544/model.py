@@ -131,12 +131,6 @@ class LegacyHwModifiers(BaseModel):
     segment_id: str = Field(alias="SegmentId")
     field_name: str = Field(alias="FieldName")
 
-    @validator("mask")
-    def decode_segment_value(cls, v):
-        v = base64.b64decode(v)
-        v = "".join([hex(int(i)).replace("0x", "").zfill(2) for i in bytearray(v)])
-        return v
-
 
 class LegacyFieldValueRanges(BaseModel):
     start_value: int = Field(alias="StartValue")

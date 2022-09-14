@@ -3,7 +3,7 @@ import setuptools
 def main():
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
-    
+
     setuptools.setup(
         name="xoa-converter",
         description="Xena OpenAutomation test configuration converter let you easily migrate your Valkyrie test suites config files (.v2544, .v2889, .v3918, and .v1564) into XOA.",
@@ -27,6 +27,7 @@ def main():
             "Programming Language :: Python :: 3.10",
         ],
         python_requires=">=3.8.9",
+        include_package_data=True,
     )
 
 if __name__ == '__main__':

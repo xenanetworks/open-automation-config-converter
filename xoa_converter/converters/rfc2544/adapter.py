@@ -1,7 +1,7 @@
 import hashlib
-import types 
+import types
 from decimal import Decimal
-from typing import Dict, List, Union, TYPE_CHECKING
+from typing import Dict, Union, TYPE_CHECKING
 from .model import (
     LegacyModel2544 as old_model,
     LegacyFrameSizesOptions,
@@ -9,6 +9,7 @@ from .model import (
 from ..common import (
     TestParameters,
     PortIdentity,
+    convert_protocol_segments,
 )
 
 if TYPE_CHECKING:
@@ -260,67 +261,6 @@ class Converter2544:
             count += 1
         return port_identity
 
-    def __gen_profile(self) -> Dict:
-        stream_profile_handler = self.data.stream_profile_handler
-        protocol_segments_profile = {}
-        for profile in stream_profile_handler.entity_list:
-            header_segments: List = []
-            for hs in profile.stream_config.header_segments:
-                hw_modifiers: List = []
-                field_value_ranges: List = []
-                for hm in profile.stream_config.hw_modifiers:
-                    if hm.segment_id == hs.item_id:
-
-                        hw_modifiers.append(
-                            self.module.HwModifier.construct(
-                                field_name=hm.field_name,
-                                mask=hm.mask,
-                                action=self.module.ModifierActionOption[
-                                    hm.action.name.lower()
-                                ],
-                                start_value=hm.start_value,
-                                stop_value=hm.stop_value,
-                                step_value=hm.step_value,
-                                repeat_count=hm.repeat_count,
-                                count=0,
-                                offset=hm.offset,
-                            )
-                        )
-                for hvr in profile.stream_config.field_value_ranges:
-                    if hvr.segment_id == hs.item_id:
-                        # bit_length = get_field_bit_length(
-                        #     hs.segment_type, hvr.field_name
-                        # )
-                        field_value_ranges.append(
-                            self.module.FieldValueRange.construct(
-                                field_name=hvr.field_name,
-                                start_value=hvr.start_value,
-                                stop_value=hvr.stop_value,
-                                step_value=hvr.step_value,
-                                action=self.module.ModifierActionOption[
-                                    hvr.action.name.lower()
-                                ],
-                                reset_for_each_port=hvr.reset_for_each_port,
-                                # bit_length=bit_length,
-                            )
-                        )
-                header_segments.append(
-                    self.module.HeaderSegment.construct(
-                        segment_type=self.module.SegmentType[
-                            hs.segment_type.name.lower()
-                        ],
-                        segment_value=hs.segment_value,
-                        field_value_ranges=field_value_ranges,
-                        hw_modifiers=hw_modifiers,
-                    )
-                )
-            protocol_segments_profile[
-                profile.item_id
-            ] = self.module.ProtocolSegmentProfileConfig.construct(
-                header_segments=header_segments
-            )
-        return protocol_segments_profile
-
     def __gen_ipv4_addr(self, entity: "LegacyPortEntity"):
         return self.module.IPV4AddressProperties.construct(
             address=entity.ip_v4_address,
@@ -396,7 +336,7 @@ class Converter2544:
         port_identities = self.__gen_port_identity()
         test_conf = self.__gen_test_config()
         config = self.module.PluginModel2544.construct(
-            protocol_segments=self.__gen_profile(),
+            protocol_segments=convert_protocol_segments(self.data.stream_profile_handler, self.module),
             test_configuration=test_conf,
             test_types_configuration=self.__gen_test_type_config(),
             ports_configuration=self.__generate_port_config(),

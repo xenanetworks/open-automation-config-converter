@@ -1,9 +1,9 @@
 
 from typing import Dict, List
 from pydantic import (
-    BaseModel, 
-    Field, 
-    NonNegativeInt, 
+    BaseModel,
+    Field,
+    NonNegativeInt,
     validator,
 )
 from . import enums
@@ -115,13 +115,6 @@ class LegacyHeaderSegments(BaseModel):
         else:
             return v
 
-    @validator("segment_value", pre=True, always=True)
-    def decode_segment_value(cls, v):
-        v = base64.b64decode(v)
-        v = "".join([hex(int(i)).replace("0x", "").zfill(2) for i in bytearray(v)])
-        return v
-
-
 class LegacyPayloadDefinition(BaseModel):
     payload_type: str = Field(alias="PayloadType")
     payload_pattern: str = Field(alias="PayloadPattern")
@@ -137,12 +130,6 @@ class LegacyHwModifiers(BaseModel):
     repeat_count: int = Field(alias="RepeatCount")
     segment_id: str = Field(alias="SegmentId")
     field_name: str = Field(alias="FieldName")
-
-    @validator("mask")
-    def decode_segment_value(cls, v):
-        v = base64.b64decode(v)
-        v = "".join([hex(int(i)).replace("0x", "").zfill(2) for i in bytearray(v)])
-        return v
 
 
 class LegacyFieldValueRanges(BaseModel):

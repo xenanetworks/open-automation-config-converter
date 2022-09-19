@@ -6,22 +6,23 @@ from .const import (
     BRRModeStr,
     LearningPortDMacMode,
     LearningSequencePortDMacMode,
-    ODurationType,
-    OModifierActionOption,
-    OPortRateCapProfile,
-    OPortRateCapUnit,
-    OSegmentType,
-    OTidAllocationScope,
-    OTestType,
-    OStreamRateType,
-    ODurationFrameUnit,
-    OTrafficDirection,
+    LegacyDurationType,
+    LegacyModifierActionOption,
+    LegacyPortRateCapProfile,
+    LegacyPortRateCapUnit,
+    LegacySegmentType,
+    LegacyTidAllocationScope,
+    LegacyTestType,
+    LegacyStreamRateType,
+    LegacyDurationFrameUnit,
+    LegacyTrafficDirection,
     PortGroup,
     TestPortMacMode,
-    OFlowCreationType,
-    OPacketSizeType,
+    LegacyFlowCreationType,
+    LegacyPacketSizeType,
     DurationTimeUnit,
     TestTopology,
+    LegacyFecMode,
 )
 
 
@@ -50,10 +51,10 @@ class PortRoleConfig(BaseModel):
         else:
             return v
 
-class OPortRoleHandler(BaseModel):
+class LegacyPortRoleHandler(BaseModel):
     role_map: Dict[str, PortRoleConfig] = Field(alias="RoleMap")
 
-class ORateIterationOptions(BaseModel):
+class LegacyRateIterationOptions(BaseModel):
     initial_value: float = Field(alias="InitialValue")
     minimum_value: float = Field(alias="MinimumValue")
     maximum_value: float = Field(alias="MaximumValue")
@@ -62,62 +63,62 @@ class ORateIterationOptions(BaseModel):
     pass_threshold: float = Field(alias="PassThreshold")
 
 
-class OTestCaseBaseConfiguration(BaseModel):
+class LegacyTestCaseBaseConfiguration(BaseModel):
     type: Optional[str] = Field(alias="$type")
-    test_type: OTestType = Field(alias="TestType")
+    test_type: LegacyTestType = Field(alias="TestType")
     enabled: bool = Field(alias="Enabled")
-    duration_type: ODurationType = Field(alias="DurationType")
+    duration_type: LegacyDurationType = Field(alias="DurationType")
     duration: float = Field(alias="Duration")
     duration_time_unit: DurationTimeUnit = Field(alias="DurationTimeUnit")
     duration_frames: int = Field(alias="DurationFrames")
-    duration_frame_unit: ODurationFrameUnit = Field(alias="DurationFrameUnit")
+    duration_frame_unit: LegacyDurationFrameUnit = Field(alias="DurationFrameUnit")
     iterations: int = Field(alias="Iterations")
     item_id: str = Field(alias="ItemID")
     parent_id: str = Field(alias="ParentID")
     label: str = Field(alias="Label")
 
 
-class ORateSweepOptions(BaseModel):
+class LegacyRateSweepOptions(BaseModel):
     start_value: float = Field(alias="StartValue")
     end_value: float = Field(alias="EndValue")
     step_value: float = Field(alias="StepValue")
 
 
-class ORateSubTest(OTestCaseBaseConfiguration):
+class LegacyRateSubTest(LegacyTestCaseBaseConfiguration):
     topology: TestTopology = Field(alias="Topology")
-    direction: OTrafficDirection = Field(alias="Direction")
-    port_role_handler: OPortRoleHandler = Field(alias="PortRoleHandler")
+    direction: LegacyTrafficDirection = Field(alias="Direction")
+    port_role_handler: LegacyPortRoleHandler = Field(alias="PortRoleHandler")
     throughput_test_enabled: bool = Field(alias="ThroughputTestEnabled")
-    rate_iteration_options: ORateIterationOptions = Field(alias="RateIterationOptions")
+    rate_iteration_options: LegacyRateIterationOptions = Field(alias="RateIterationOptions")
     forwarding_test_enabled: bool = Field(alias="ForwardingTestEnabled")
-    rate_sweep_options: ORateSweepOptions = Field(alias="RateSweepOptions")
+    rate_sweep_options: LegacyRateSweepOptions = Field(alias="RateSweepOptions")
 
 
 class RateSubTestHandler(BaseModel):
-    rate_sub_tests: List[ORateSubTest] = Field(alias="RateSubTests")
+    rate_sub_tests: List[LegacyRateSubTest] = Field(alias="RateSubTests")
 
 
-class ORateTest(OTestCaseBaseConfiguration):
+class LegacyRateTest(LegacyTestCaseBaseConfiguration):
     rate_sub_test_handler: RateSubTestHandler = Field(alias="RateSubTestHandler")
 
 
-class OCongestionControl(OTestCaseBaseConfiguration):
-    port_role_handler: OPortRoleHandler = Field(alias="PortRoleHandler")
+class LegacyCongestionControl(LegacyTestCaseBaseConfiguration):
+    port_role_handler: LegacyPortRoleHandler = Field(alias="PortRoleHandler")
 
 
-class OForwardPressure(OTestCaseBaseConfiguration):
-    port_role_handler: OPortRoleHandler = Field(alias="PortRoleHandler")
+class LegacyForwardPressure(LegacyTestCaseBaseConfiguration):
+    port_role_handler: LegacyPortRoleHandler = Field(alias="PortRoleHandler")
     interframe_gap_delta: int = Field(alias="InterFrameGapDelta")
     acceptable_rx_max_util_delta: float = Field(alias="AcceptableRxMaxUtilDelta")
 
 
-class OMaxForwardingRate(OTestCaseBaseConfiguration):
-    port_role_handler: OPortRoleHandler = Field(alias="PortRoleHandler")
+class LegacyMaxForwardingRate(LegacyTestCaseBaseConfiguration):
+    port_role_handler: LegacyPortRoleHandler = Field(alias="PortRoleHandler")
     use_throughput_as_start_value: bool = Field(alias="UseThroughputAsStartValue")
-    rate_sweep_options: ORateSweepOptions = Field(alias="RateSweepOptions")
+    rate_sweep_options: LegacyRateSweepOptions = Field(alias="RateSweepOptions")
 
 
-class OAddressIterationOptions(BaseModel):
+class LegacyAddressIterationOptions(BaseModel):
     initial_value: float = Field(alias="InitialValue")
     minimum_value: float = Field(alias="MinimumValue")
     maximum_value: float = Field(alias="MaximumValue")
@@ -126,10 +127,10 @@ class OAddressIterationOptions(BaseModel):
     pass_threshold: float = Field(alias="PassThreshold")
 
 
-class OAddressCachingCapacity(OTestCaseBaseConfiguration):
-    port_role_handler: OPortRoleHandler = Field(alias="PortRoleHandler")
-    rate_sweep_options: ORateSweepOptions = Field(alias="RateSweepOptions")
-    address_iteration_options: ORateIterationOptions = Field(alias="AddressIterationOptions")
+class LegacyAddressCachingCapacity(LegacyTestCaseBaseConfiguration):
+    port_role_handler: LegacyPortRoleHandler = Field(alias="PortRoleHandler")
+    rate_sweep_options: LegacyRateSweepOptions = Field(alias="RateSweepOptions")
+    address_iteration_options: LegacyRateIterationOptions = Field(alias="AddressIterationOptions")
     learn_mac_base_address: str = Field(alias='LearnMacBaseAddress')
     test_port_mac_mode: TestPortMacMode = Field(alias='TestPortMacMode')
     learning_port_dmac_mode: LearningPortDMacMode = Field(alias='LearningPortDMacMode')
@@ -143,10 +144,10 @@ class OAddressCachingCapacity(OTestCaseBaseConfiguration):
     fast_run_resolution_enabled: bool = Field(alias='FastRunResolutionEnabled')
 
 
-class OAddressLearningRate(OTestCaseBaseConfiguration):
-    port_role_handler: OPortRoleHandler = Field(alias="PortRoleHandler")
-    address_sweep_options: ORateSweepOptions = Field(alias="AddressSweepOptions")
-    rate_iteration_options: ORateIterationOptions = Field(alias="RateIterationOptions")
+class LegacyAddressLearningRate(LegacyTestCaseBaseConfiguration):
+    port_role_handler: LegacyPortRoleHandler = Field(alias="PortRoleHandler")
+    address_sweep_options: LegacyRateSweepOptions = Field(alias="AddressSweepOptions")
+    rate_iteration_options: LegacyRateIterationOptions = Field(alias="RateIterationOptions")
     learn_mac_base_address: str = Field(alias='LearnMacBaseAddress')
     test_port_mac_mode: TestPortMacMode = Field(alias='TestPortMacMode')
     learning_port_dmac_mode: LearningPortDMacMode = Field(alias='LearningPortDMacMode')
@@ -161,9 +162,9 @@ class OAddressLearningRate(OTestCaseBaseConfiguration):
     set_end_address_to_capacity: bool = Field(alias='SetEndAddressToCapacity')
 
 
-class OErroredFramesFiltering(OTestCaseBaseConfiguration):
-    port_role_handler: OPortRoleHandler = Field(alias="PortRoleHandler")
-    rate_sweep_options: ORateSweepOptions = Field(alias="RateSweepOptions")
+class LegacyErroredFramesFiltering(LegacyTestCaseBaseConfiguration):
+    port_role_handler: LegacyPortRoleHandler = Field(alias="PortRoleHandler")
+    rate_sweep_options: LegacyRateSweepOptions = Field(alias="RateSweepOptions")
     oversize_test_enabled: bool = Field(alias='OversizeTestEnabled')
     max_frame_size: int = Field(alias='MaxFrameSize')
     oversize_span: int = Field(alias='OversizeSpan')
@@ -171,34 +172,34 @@ class OErroredFramesFiltering(OTestCaseBaseConfiguration):
     undersize_span: int = Field(alias='UndersizeSpan')
 
 
-class OBroadcastForwarding(OTestCaseBaseConfiguration):
-    port_role_handler: OPortRoleHandler = Field(alias="PortRoleHandler")
-    rate_iteration_options: ORateIterationOptions = Field(alias="RateIterationOptions")
+class LegacyBroadcastForwarding(LegacyTestCaseBaseConfiguration):
+    port_role_handler: LegacyPortRoleHandler = Field(alias="PortRoleHandler")
+    rate_iteration_options: LegacyRateIterationOptions = Field(alias="RateIterationOptions")
 
 
 class TestTypeOptionMap(BaseModel):
-    rate_test: ORateTest = Field(alias="RateTest")
-    congestion_control: OCongestionControl = Field(alias="CongestionControl")
-    forward_pressure: OForwardPressure = Field(alias="ForwardPressure")
-    max_forwarding_rate: OMaxForwardingRate = Field(alias="MaxForwardingRate")
-    address_caching_capacity: OAddressCachingCapacity = Field(alias="AddressCachingCapacity")
-    address_learning_rate: OAddressLearningRate = Field(alias="AddressLearningRate")
-    errored_frames_filtering: OErroredFramesFiltering = Field(alias="ErroredFramesFiltering")
-    broadcast_forwarding: OBroadcastForwarding = Field(alias="BroadcastForwarding")
+    rate_test: LegacyRateTest = Field(alias="RateTest")
+    congestion_control: LegacyCongestionControl = Field(alias="CongestionControl")
+    forward_pressure: LegacyForwardPressure = Field(alias="ForwardPressure")
+    max_forwarding_rate: LegacyMaxForwardingRate = Field(alias="MaxForwardingRate")
+    address_caching_capacity: LegacyAddressCachingCapacity = Field(alias="AddressCachingCapacity")
+    address_learning_rate: LegacyAddressLearningRate = Field(alias="AddressLearningRate")
+    errored_frames_filtering: LegacyErroredFramesFiltering = Field(alias="ErroredFramesFiltering")
+    broadcast_forwarding: LegacyBroadcastForwarding = Field(alias="BroadcastForwarding")
 
 
-class ORateDefinition(BaseModel):
-    rate_type: OStreamRateType = Field(alias="RateType")
+class LegacyRateDefinition(BaseModel):
+    rate_type: LegacyStreamRateType = Field(alias="RateType")
     rate_fraction: float = Field(alias="RateFraction")
     rate_pps: float = Field(alias="RatePps")
     rate_bps_l1: float = Field(alias="RateBpsL1")
-    rate_bps_l1_unit: OPortRateCapUnit = Field(alias="RateBpsL2Unit")
+    rate_bps_l1_unit: LegacyPortRateCapUnit = Field(alias="RateBpsL2Unit")
     rate_bps_l2: float = Field(alias="RateBpsL1")
-    rate_bps_l2_unit: OPortRateCapUnit = Field(alias="RateBpsL2Unit")
+    rate_bps_l2_unit: LegacyPortRateCapUnit = Field(alias="RateBpsL2Unit")
 
 
 class FlowCreationOptions(BaseModel):
-    flow_creation_type: OFlowCreationType = Field(alias="FlowCreationType")
+    flow_creation_type: LegacyFlowCreationType = Field(alias="FlowCreationType")
     mac_base_address: str = Field(alias="MacBaseAddress")
     use_gateway_mac_as_dmac: bool = Field(alias="UseGatewayMacAsDmac")
     enable_multi_stream: bool = Field(alias="EnableMultiStream")
@@ -214,7 +215,7 @@ class MixedLengthConfig(BaseModel):
 
 
 class PacketSizes(BaseModel):
-    packet_size_type: OPacketSizeType = Field(alias="PacketSizeType")
+    packet_size_type: LegacyPacketSizeType = Field(alias="PacketSizeType")
     custom_packet_sizes: List = Field(alias="CustomPacketSizes")
     sw_packet_start_size: int = Field(alias="SwPacketStartSize")
     sw_packet_end_size: int = Field(alias="SwPacketEndSize")
@@ -228,7 +229,7 @@ class PacketSizes(BaseModel):
 class TestOptions(BaseModel):
     test_type_option_map: TestTypeOptionMap = Field(alias="TestTypeOptionMap")
     packet_sizes: PacketSizes = Field(alias="PacketSizes")
-    rate_definition: ORateDefinition = Field(alias="RateDefinition")
+    rate_definition: LegacyRateDefinition = Field(alias="RateDefinition")
     flow_creation_options: FlowCreationOptions = Field(alias="FlowCreationOptions")
     latency_mode: str = Field(alias="LatencyMode")
     toggle_sync_state: bool = Field(alias="ToggleSyncState")
@@ -262,7 +263,8 @@ class PortRef(BaseModel):
     port_index: int = Field(alias="PortIndex")
 
 
-class PortEntity(BaseModel):
+
+class LegacyPortEntity(BaseModel):
     port_ref: PortRef = Field(alias="PortRef")
     port_group: PortGroup = Field(alias="PortGroup")
     pair_peer_ref: None = Field(alias="PairPeerRef")
@@ -276,7 +278,7 @@ class PortEntity(BaseModel):
     adjust_ppm: int = Field(alias="AdjustPpm")
     latency_offset: int = Field(alias="LatencyOffset")
     mdi_mdix_mode: str = Field(alias="MdiMdixMode")
-    fec_mode: str = Field(alias="FecMode")
+    fec_mode: LegacyFecMode = Field(alias="FecMode")
     brr_mode: BRRModeStr = Field(alias="BrrMode")
     reply_arp_requests: int = Field(alias="ReplyArpRequests")
     reply_ping_requests: int = Field(alias="ReplyPingRequests")
@@ -296,8 +298,8 @@ class PortEntity(BaseModel):
     remote_loop_mac_address: str = Field(alias="RemoteLoopMacAddress")
     enable_port_rate_cap: int = Field(alias="EnablePortRateCap")
     port_rate_cap_value: float = Field(alias="PortRateCapValue")
-    port_rate_cap_profile: OPortRateCapProfile = Field(alias="PortRateCapProfile")
-    port_rate_cap_unit: OPortRateCapUnit = Field(alias="PortRateCapUnit")
+    port_rate_cap_profile: LegacyPortRateCapProfile = Field(alias="PortRateCapProfile")
+    port_rate_cap_unit: LegacyPortRateCapUnit = Field(alias="PortRateCapUnit")
     multi_stream_map: None = Field(alias="MultiStreamMap")
     item_id: str = Field(alias="ItemID")
     parent_id: str = Field(alias="ParentID")
@@ -311,13 +313,13 @@ class PortEntity(BaseModel):
 
 
 class PortHandler(BaseModel):
-    entity_list: List[PortEntity] = Field(alias="EntityList")
+    entity_list: List[LegacyPortEntity] = Field(alias="EntityList")
 
 
 class HwModifiers(BaseModel):
     offset: int = Field(alias="Offset")
     mask: str = Field(alias="Mask")
-    action: OModifierActionOption = Field(alias="Action")
+    action: LegacyModifierActionOption = Field(alias="Action")
     start_value: int = Field(alias="StartValue")
     stop_value: int = Field(alias="StopValue")
     step_value: int = Field(alias="StepValue")
@@ -336,7 +338,7 @@ class FieldValueRanges(BaseModel):
     start_value: int = Field(alias="StartValue")
     stop_value: int = Field(alias="StopValue")
     step_value: int = Field(alias="StepValue")
-    action: OModifierActionOption = Field(alias="Action")
+    action: LegacyModifierActionOption = Field(alias="Action")
     reset_for_each_port: bool = Field(alias="ResetForEachPort")
     segment_id: str = Field(alias="SegmentId")
     field_name: str = Field(alias="FieldName")
@@ -344,7 +346,7 @@ class FieldValueRanges(BaseModel):
 
 class HeaderSegments(BaseModel):
     segment_value: str = Field(alias="SegmentValue")
-    segment_type: OSegmentType = Field(alias="SegmentType")
+    segment_type: LegacySegmentType = Field(alias="SegmentType")
     item_id: str = Field(alias="ItemID")
     parent_id: str = Field(alias="ParentID")
     label: str = Field(alias="Label")
@@ -353,9 +355,9 @@ class HeaderSegments(BaseModel):
     def validate_segment_type(cls, v, values):
         if isinstance(v, str):
             if v.lower().startswith("raw"):
-                return OSegmentType(f"raw_{len(values['segment_value']) // 2}")
+                return LegacySegmentType(f"raw_{len(values['segment_value']) // 2}")
             else:
-                return OSegmentType(v)
+                return LegacySegmentType(v)
         else:
             return v
 
@@ -410,6 +412,6 @@ class ValkyrieConfiguration2889(BaseModel):
     test_options: TestOptions = Field(alias="TestOptions")
     creation_date: str = Field(alias="CreationDate")
     chassis_manager: ChassisManager = Field(alias="ChassisManager")
-    tid_allocation_scope: OTidAllocationScope = Field(alias="TidAllocationScope")
+    tid_allocation_scope: LegacyTidAllocationScope = Field(alias="TidAllocationScope")
     format_version: int = Field(alias="FormatVersion")
     application_version: str = Field(alias="ApplicationVersion")

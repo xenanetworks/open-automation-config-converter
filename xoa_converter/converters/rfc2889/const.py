@@ -13,7 +13,7 @@ class Enum(CaseSensitiveEnum):
                     return member
 
 
-class ODurationType(Enum):
+class LegacyDurationType(Enum):
     TIME = "seconds"
     FRAME = "frames"
 
@@ -25,60 +25,59 @@ class DurationTimeUnit(Enum):
     DAY = "days"
 
 
-class ODurationFrameUnit(Enum):
+class LegacyDurationFrameUnit(Enum):
     FRAME = "frames"
     K_FRAME = "Kframes"
     M_FRAME = "Mframes"
     G_FRAME = "Gframes"
 
 
-class OTrafficDirection(Enum):
+class LegacyTrafficDirection(Enum):
     EAST_TO_WEST = "east_west"
     WEST_TO_EAST = "west_east"
     BIDIRECTION = "bidir"
 
 
-class OModifierActionOption(Enum):
+class LegacyModifierActionOption(Enum):
     INC = "inc"
     DEC = "dec"
     RANDOM = "rnd"
 
 
-class OPortRateCapUnit(Enum):
-    GBPS = "gbps"
-    MBPS = "mbps"
-    KBPS = "kbps"
+class LegacyPortRateCapUnit(Enum):
+    FIELD_1E9_BPS = "gbps"
+    FIELD_1E6_BPS = "mbps"
+    FIELD_1E3_BPS = "kbps"
     BPS = "bps"
 
-
-class OPortRateCapProfile(Enum):
+class LegacyPortRateCapProfile(Enum):
     PHYSICAL = "Physical Port Rate"
     CUSTOM = "Custom Rate Cap"
 
 
-class OOuterLoopMode(Enum):
+class LegacyOuterLoopMode(Enum):
     ITERATION = "iterations"
     PACKET_SIZE = "packetsize"
 
 
-class OMACLearningMode(Enum):
+class LegacyMACLearningMode(Enum):
     NEVER = "never"
     ONCE = "once"
     EVERYTRIAL = "everytrial"
 
 
-class OFlowCreationType(Enum):
+class LegacyFlowCreationType(Enum):
     STREAM = "streambased"
     MODIFIER = "modifierbased"
 
 
-class OTidAllocationScope(Enum):
+class LegacyTidAllocationScope(Enum):
     CONFIGURATION_SCOPE = "configscope"
     RX_PORT_SCOPE = "portscope"
     SOURCE_PORT_ID = "srcportid"
 
 
-class ORateResultScopeType(Enum):
+class LegacyRateResultScopeType(Enum):
     COMMON = "commonresult"
     PER_SOURCE_PORT = "persrcportresult"
 
@@ -91,7 +90,7 @@ class ORateResultScopeType(Enum):
 # }
 
 
-class OTestType(Enum):
+class LegacyTestType(Enum):
     RATE_TEST = "RateTest"
     CONGESTION_CONTROL = "CongestionControl"
     FORWARD_PRESSURE = "ForwardPressure"
@@ -102,7 +101,7 @@ class OTestType(Enum):
     BROADCAST_FORWARDING = "BroadcastForwarding"
 
 
-class OSegmentType(Enum):
+class LegacySegmentType(Enum):
     ETHERNET = "ethernet"
     VLAN = "vlan"
     ARP = "arp"
@@ -167,7 +166,7 @@ class OSegmentType(Enum):
         return int(self.value.split("_")[-1])
 
 
-class OStreamRateType(Enum):
+class LegacyStreamRateType(Enum):
     FRACTION = "fraction"
     PPS = "pps"
     L1BPS = "l1bps"
@@ -203,7 +202,7 @@ class LearningSequencePortDMacMode(Enum):
         return self == LearningSequencePortDMacMode.USE_RANDOM_MAC_ADDRESSES
 
 
-class OPacketSizeType(Enum):
+class LegacyPacketSizeType(Enum):
     IETF_DEFAULT = "ieeedefault"
     CUSTOM = "customsizes"
     RANGE = "specified"
@@ -327,3 +326,9 @@ class TestTopology(Enum):
     @property
     def is_pair_topology(self) -> bool:
         return self == type(self).PAIRS
+
+
+class LegacyFecMode(Enum):
+    ON = "on"
+    OFF = "off"
+    FC_FEC = "FIRECODE"

@@ -50,8 +50,9 @@ class LegacyPortRateCapUnit(Enum):
     FIELD_1E3_BPS = "kbps"
     BPS = "bps"
 
+
 class LegacyPortRateCapProfile(Enum):
-    PHYSICAL = "Physical Port Rate"
+    PHYSICAL_PORT_RATE = "Physical Port Rate"
     CUSTOM = "Custom Rate Cap"
 
 
@@ -105,7 +106,7 @@ class LegacySegmentType(Enum):
     ETHERNET = "ethernet"
     VLAN = "vlan"
     ARP = "arp"
-    IP = "ip"
+    IPV4 = "ip"
     IPV6 = "ipv6"
     UDP = "udp"
     TCP = "tcp"
@@ -204,7 +205,7 @@ class LearningSequencePortDMacMode(Enum):
 
 class LegacyPacketSizeType(Enum):
     IETF_DEFAULT = "ieeedefault"
-    CUSTOM = "customsizes"
+    CUSTOM_SIZES = "customsizes"
     RANGE = "specified"
     INCREMENTING = "incrementing"
     BUTTERFLY = "butterfly"

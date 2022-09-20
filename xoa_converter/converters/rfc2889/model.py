@@ -241,6 +241,14 @@ class TestOptions(BaseModel):
     port_stagger_steps: int = Field(alias="PortStaggerSteps")
 
 
+class LegacyFrameSizesOptions(BaseModel):
+    field_0: int = Field(56, alias="0")
+    field_1: int = Field(60, alias="1")
+    field_14: int = Field(9216, alias="14")
+    field_15: int = Field(16360, alias="15")
+
+
+
 class ChassisList(BaseModel):
     chassis_id: str = Field(alias="ChassisID")
     host_name: str = Field(alias="HostName")

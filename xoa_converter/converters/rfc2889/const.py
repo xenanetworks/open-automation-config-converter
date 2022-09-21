@@ -35,7 +35,7 @@ class LegacyDurationFrameUnit(Enum):
 class LegacyTrafficDirection(Enum):
     EAST_TO_WEST = "east_west"
     WEST_TO_EAST = "west_east"
-    BIDIRECTION = "bidir"
+    BIDIR = "bidir"
 
 
 class LegacyModifierActionOption(Enum):

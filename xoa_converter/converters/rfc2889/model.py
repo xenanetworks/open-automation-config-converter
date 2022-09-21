@@ -248,7 +248,6 @@ class LegacyFrameSizesOptions(BaseModel):
     field_15: int = Field(16360, alias="15")
 
 
-
 class ChassisList(BaseModel):
     chassis_id: str = Field(alias="ChassisID")
     host_name: str = Field(alias="HostName")
@@ -407,7 +406,7 @@ class SteamEntity(BaseModel):
     label: str = Field(alias="Label")
 
 
-class StreamProfileHandler(BaseModel):
+class LegacyStreamProfileHandler(BaseModel):
     profile_assignment_map: Dict = Field(alias="ProfileAssignmentMap")
     entity_list: List[SteamEntity] = Field(alias="EntityList")
 
@@ -416,7 +415,7 @@ class ValkyrieConfiguration2889(BaseModel):
     """represent '.v2889' configuration file"""
 
     port_handler: PortHandler = Field(alias="PortHandler")
-    stream_profile_handler: StreamProfileHandler = Field(alias="StreamProfileHandler")
+    stream_profile_handler: LegacyStreamProfileHandler = Field(alias="StreamProfileHandler")
     test_options: TestOptions = Field(alias="TestOptions")
     creation_date: str = Field(alias="CreationDate")
     chassis_manager: ChassisManager = Field(alias="ChassisManager")

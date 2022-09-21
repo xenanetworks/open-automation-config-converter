@@ -4,6 +4,7 @@ from xoa_converter import exceptions
 from xoa_converter import types
 from .common import TestParameters
 from .rfc2544.adapter import Converter2544
+from .rfc3918.adapter import Converter3918
 
 
 class XoaConverter(Protocol):
@@ -15,4 +16,6 @@ def get_converter(test_suite_type: types.TestSuiteType) -> Type[XoaConverter]:
     """Selecting and returning Converter"""
     if test_suite_type == types.TestSuiteType.RFC2544:
         return Converter2544
+    if test_suite_type == types.TestSuiteType.RFC3918:
+        return Converter3918
     raise exceptions.UnknowConverterType(test_suite_type)

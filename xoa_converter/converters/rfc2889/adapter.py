@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import types
 from decimal import Decimal
@@ -9,7 +10,7 @@ from .model import (
 from ..common import (
     TestParameters,
     PortIdentity,
-    convert_protocol_segments,
+    load_segment_refs_json,
 )
 
 if TYPE_CHECKING:
@@ -310,13 +311,43 @@ class Converter2889:
             broadcast_forwarding=self.__gen_broadcast_forwarding(),
         )
 
+    def __gen_protocol_segments(self) -> Dict:
+        protocol_segments_profile = {}
+
+        for profile in self.data.stream_profile_handler.entity_list:
+            header_segments = []
+
+            for hs in profile.stream_config.header_segments:
+                segment_ref = load_segment_refs_json(hs.segment_type.value)
+                segment_value = bin(int('1'+base64.b64decode(hs.segment_value).hex(), 16))[3:]
+                converted_fields = []
+
+                for field in segment_ref.protocol_fields:
+                    converted_fields.append(
+                        self.module.SegmentField.construct(
+                            name=field.name,
+                            value=segment_value[:field.bit_length],
+                            bit_length=field.bit_length,
+                        )
+                    )
+                    segment_value = segment_value[field.bit_length:]
+
+                segment = self.module.ProtocolSegment.construct(
+                    segment_type=self.module.SegmentType[hs.segment_type.name.lower()],
+                    fields=converted_fields,
+                    checksum_offset=segment_ref.checksum_offset,
+                )
+                header_segments.append(segment)
+
+            protocol_segments_profile[profile.item_id] = self.module.ProtocolSegmentProfileConfig.construct(header_segments=header_segments)
+        return protocol_segments_profile
+
     def gen(self) -> "TestParameters":
         port_identities = self.__gen_port_identity()
         config = self.module.TestSuiteConfiguration2889.construct(
             ports_configuration=self.__gen_port_config(),
-            protocol_segments=convert_protocol_segments(self.data.stream_profile_handler, self.module),
+            protocol_segments=self.__gen_protocol_segments(),
             general_test_configuration=self.__gen_general_test_config(),
             test_suites_configuration=self.__gen_test_types_config(),
         )
         return TestParameters(username="RFC-2889", config=config, port_identities=port_identities)
-

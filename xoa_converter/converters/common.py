@@ -15,7 +15,6 @@ from operator import attrgetter
 
 if TYPE_CHECKING:
     from xoa_converter.converters.rfc2544.model import LegacyStreamProfileHandler as LegacyStreamProfile2544
-    from xoa_converter.converters.rfc2889.model import LegacyStreamProfileHandler as LegacyStreamProfile2889
     from types import ModuleType
 
 
@@ -77,7 +76,7 @@ def load_segment_refs_json(segment_type_value: str) -> SegmentRef:
     return segment_ref
 
 
-def convert_protocol_segments(stream_profile_handler: Union["LegacyStreamProfile2544", "LegacyStreamProfile2889"], target_module: "ModuleType") -> Dict:
+def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfile2544", target_module: "ModuleType") -> Dict:
     protocol_segments_profile = {}
 
     for profile in stream_profile_handler.entity_list:

@@ -368,13 +368,6 @@ class HeaderSegments(BaseModel):
         else:
             return v
 
-    @validator("segment_value", pre=True, always=True)
-    def decode_segment_value(cls, v):
-        v = base64.b64decode(v)
-        v = "".join([hex(int(i)).replace("0x", "").zfill(2) for i in bytearray(v)])
-        return v
-
-
 class StreamConfig(BaseModel):
     sw_modifier: None = Field(alias="SwModifier")
     hw_modifiers: List[HwModifiers] = Field(alias="HwModifiers")

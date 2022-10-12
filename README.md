@@ -15,7 +15,7 @@ This converter is meant for those who want to integrate XOA test suites into the
 
 ## Documentation
 The user documentation is hosted:
-[Xena OpenAutomation Test Config Converter Documentation](https://docs.xenanetworks.com/projects/xoa-core)
+[Xena OpenAutomation Test Config Converter Documentation](https://docs.xenanetworks.com/projects/xoa-config-converter)
 
 
 ## Installation

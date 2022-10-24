@@ -55,7 +55,6 @@ class SegmentRef(BaseModel):
     name: str = Field(alias='Name')
     description: str = Field(alias='Description')
     segment_type: str = Field(alias='SegmentType')
-    enclosed_type_index: int = Field(alias='EnclosedTypeIndex')
     checksum_offset: Optional[int] = Field(alias='ChecksumOffset')
     protocol_fields: List[LegacySegmentField] = Field(alias='ProtocolFields')
 

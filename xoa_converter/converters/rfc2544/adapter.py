@@ -152,7 +152,7 @@ class Converter2544:
             else test_type_conf.duration_frames,
             duration_unit=test_type_conf.duration_time_unit
             if is_time_duration
-            else self.module.DurationFrameUnit[
+            else self.module.DurationUnit[
                 test_type_conf.duration_frame_unit.name.lower()
             ],
             # duration_frames=test_type_conf.duration_frames,

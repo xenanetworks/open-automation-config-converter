@@ -179,11 +179,8 @@ class Converter2889:
     def __gather_test_case_common_config(self, test_case_config):
         return dict(
             enabled=test_case_config.enabled,
-            duration_type=self.module.DurationType[ test_case_config.duration_type.name.lower() ],
             duration=test_case_config.duration,
             duration_time_unit=test_case_config.duration_time_unit,
-            duration_frames=test_case_config.duration_frames,
-            duration_frame_unit=self.module.DurationFrameUnit[ test_case_config.duration_frame_unit.name.lower() ],
             iterations=test_case_config.iterations,
             item_id=test_case_config.item_id,
             label=test_case_config.label,

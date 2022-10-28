@@ -119,7 +119,7 @@ class Converter2544:
             frame_sizes=frame_size,
             use_micro_tpld_on_demand=flow_option.use_micro_tpld_on_demand,
             payload_type=payload.payload_type,
-            payload_pattern=payload.payload_pattern,
+            payload_pattern="".join([hex(int(i)).replace("0x", "").zfill(2) for i in payload.payload_pattern.split(",")]),
             multi_stream_config=self.__gen_multi_stream_config(),
         )
 

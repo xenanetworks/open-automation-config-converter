@@ -1,4 +1,4 @@
-__version__ = "1.0.3"
+__version__ = "1.0.4"
 __short_version__ = "1.0"
 
 from .entry import converter

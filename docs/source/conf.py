@@ -132,6 +132,8 @@ html_theme_options = {
     "repository_url": "https://github.com/xenanetworks/open-automation-config-converter",
     "use_repository_button": True,
     "home_page_in_toc": True,
+    "show_toc_level": 1,
+    "show_navbar_depth": 1,
 }
 
 html_split_index = True

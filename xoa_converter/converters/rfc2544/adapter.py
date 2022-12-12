@@ -120,7 +120,7 @@ class Converter2544:
             frame_sizes=frame_size,
             use_micro_tpld_on_demand=flow_option.use_micro_tpld_on_demand,
             payload_type=payload.payload_type,
-            payload_pattern=payload.payload_pattern,
+            payload_pattern="".join([hex(int(i)).replace("0x", "").zfill(2) for i in payload.payload_pattern.split(",")]),
             multi_stream_config=self.__gen_multi_stream_config(),
         )
 
@@ -153,7 +153,7 @@ class Converter2544:
             else test_type_conf.duration_frames,
             duration_unit=test_type_conf.duration_time_unit
             if is_time_duration
-            else self.module.DurationFrameUnit[
+            else self.module.DurationUnit[
                 test_type_conf.duration_frame_unit.name.lower()
             ],
             # duration_frames=test_type_conf.duration_frames,

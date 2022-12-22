@@ -24,26 +24,22 @@ SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / 'segment_refs'
 
 class PortIdentity(BaseModel):
     tester_id: str
-    tester_index: int
     module_index: int
     port_index: int
 
     @property
     def name(self) -> str:
-        return f"P-{self.tester_index}-{self.module_index}-{self.port_index}"
+        return f"P-{self.module_index}-{self.port_index}"
 
 
 class TestParameters(BaseModel):
     username: str
-    port_identities: Dict[str, PortIdentity]
+    port_identities: List[PortIdentity]
     config: BaseModel
 
     @property
     def get_testers_ids(self) -> Set[str]:
-        return set(map(
-            attrgetter("tester_id"),
-            self.port_identities.values()
-        ))
+        return set(port.tester_id for port in self.port_identities)
 
 
 class LegacySegmentField(BaseModel):

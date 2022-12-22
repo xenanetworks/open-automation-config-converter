@@ -2,7 +2,7 @@ import base64
 import hashlib
 import types
 from decimal import Decimal
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING, List
 from .model import (
     ValkyrieConfiguration2889 as old_model,
     LegacyFrameSizesOptions,
@@ -25,9 +25,9 @@ class Converter2889:
         self.module = target_module
         self.data = old_model.parse_raw(source_config)
 
-    def __gen_port_identity(self) -> Dict[str, "PortIdentity"]:
+    def __gen_port_identity(self) -> List["PortIdentity"]:
         chassis_id_map = {}
-        port_identity = {}
+        port_identity = []
 
         for chassis_info in self.data.chassis_manager.chassis_list:
             chassis_id = hashlib.md5(
@@ -41,13 +41,12 @@ class Converter2889:
             port.chassis_id = chassis_id_map[port.chassis_id]
             identity = PortIdentity(
                 tester_id=port.chassis_id,
-                tester_index=chassis_id_list.index(port.chassis_id),
                 module_index=port.module_index,
                 port_index=port.port_index,
             )
 
             self.id_map[p_info.item_id] = (f"{identity.name}", f"p{count}")
-            port_identity[f"p{count}"] = identity
+            port_identity.append(identity)
             count += 1
         return port_identity
 

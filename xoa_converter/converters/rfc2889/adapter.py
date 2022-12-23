@@ -25,17 +25,20 @@ class Converter2889:
         self.module = target_module
         self.data = old_model.parse_raw(source_config)
 
-    def __gen_port_identity(self) -> List["PortIdentity"]:
+    def __gen_chassis_id_map(self) -> Dict[str, str]:
         chassis_id_map = {}
-        port_identity = []
-
         for chassis_info in self.data.chassis_manager.chassis_list:
             chassis_id = hashlib.md5(
                 f"{chassis_info.host_name}:{chassis_info.port_number}".encode("utf-8")
             ).hexdigest()
             chassis_id_map[chassis_info.chassis_id] = chassis_id
+        return chassis_id_map
+
+    def __gen_port_identity(self) -> List["PortIdentity"]:
+        chassis_id_map = self.__gen_chassis_id_map()
+        port_identity = []
+
         count = 0
-        chassis_id_list = list(chassis_id_map.values())
         for p_info in self.data.port_handler.entity_list:
             port = p_info.port_ref
             port.chassis_id = chassis_id_map[port.chassis_id]
@@ -108,10 +111,11 @@ class Converter2889:
             broadr_reach_mode=entity.brr_mode,
             profile_id=profile_id,
             item_id=entity.item_id,
+            tester_id=entity.port_ref.chassis_id,
         )
 
     def __gen_port_config(self) -> Dict:
-        port_conf: Dict = {}
+        port_conf = {}
         for entity in self.data.port_handler.entity_list:
             port_conf[self.id_map[entity.item_id][0]] = self.__gen_port_conf(entity)
         return port_conf

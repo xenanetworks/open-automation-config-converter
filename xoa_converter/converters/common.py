@@ -22,6 +22,7 @@ if TYPE_CHECKING:
 CURRENT_FILE_PARENT_PATH = Path(__file__).parent.resolve()
 SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / 'segment_refs'
 
+
 class PortIdentity(BaseModel):
     tester_id: str
     module_index: int
@@ -29,7 +30,7 @@ class PortIdentity(BaseModel):
 
     @property
     def name(self) -> str:
-        return f"P-{self.module_index}-{self.port_index}"
+        return f"P-{self.tester_id}-{self.module_index}-{self.port_index}"
 
 
 class TestParameters(BaseModel):

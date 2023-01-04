@@ -1,7 +1,7 @@
 import hashlib
 import types
 from decimal import Decimal
-from typing import Dict, Union, TYPE_CHECKING
+from typing import Dict, Union, List, TYPE_CHECKING
 from .model import (
     LegacyModel2544 as old_model,
     LegacyFrameSizesOptions,
@@ -34,7 +34,6 @@ class Converter2544:
         self.id_map = {}
         self.module = target_module
         self.data = old_model.parse_raw(source_config)
-
 
     def __gen_frame_size(self):
         packet_size = self.data.test_options.packet_sizes
@@ -235,29 +234,30 @@ class Converter2544:
             back_to_back_test=self.__gen_back_to_back(test_type_option_map.back2_back),
         )
 
-    def __gen_port_identity(self) -> Dict[str, "PortIdentity"]:
+    def __gen_chassis_id_map(self) -> Dict[str, str]:
         chassis_id_map = {}
-        port_identity = {}
-
         for chassis_info in self.data.chassis_manager.chassis_list:
             chassis_id = hashlib.md5(
                 f"{chassis_info.host_name}:{chassis_info.port_number}".encode("utf-8")
             ).hexdigest()
             chassis_id_map[chassis_info.chassis_id] = chassis_id
+        return chassis_id_map
+
+    def __gen_port_identity(self) -> List["PortIdentity"]:
+
+        chassis_id_map = self.__gen_chassis_id_map()
+        port_identity = []
         count = 0
-        chassis_id_list = list(chassis_id_map.values())
         for p_info in self.data.port_handler.entity_list:
             port = p_info.port_ref
             port.chassis_id = chassis_id_map[port.chassis_id]
             identity = PortIdentity(
                 tester_id=port.chassis_id,
-                tester_index=chassis_id_list.index(port.chassis_id),
                 module_index=port.module_index,
                 port_index=port.port_index,
             )
-
-            self.id_map[p_info.item_id] = (f"c-{identity.name}", f"p{count}")
-            port_identity[f"p{count}"] = identity
+            self.id_map[p_info.item_id] = (f"{identity.name}", f"p{count}")
+            port_identity.append(identity)
             count += 1
         return port_identity
 
@@ -336,7 +336,9 @@ class Converter2544:
         port_identities = self.__gen_port_identity()
         test_conf = self.__gen_test_config()
         config = self.module.PluginModel2544.construct(
-            protocol_segments=convert_protocol_segments(self.data.stream_profile_handler, self.module),
+            protocol_segments=convert_protocol_segments(
+                self.data.stream_profile_handler, self.module
+            ),
             test_configuration=test_conf,
             test_types_configuration=self.__gen_test_type_config(),
             ports_configuration=self.__generate_port_config(),

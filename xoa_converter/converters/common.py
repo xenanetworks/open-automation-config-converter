@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 CURRENT_FILE_PARENT_PATH = Path(__file__).parent.resolve()
-SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / 'segment_refs'
+SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / "segment_refs"
 
 
 class PortIdentity(BaseModel):
@@ -33,29 +33,26 @@ class PortIdentity(BaseModel):
 
 class TestParameters(BaseModel):
     username: str
-    port_identities: Dict[str, PortIdentity]
+    port_identities: List[PortIdentity]
     config: BaseModel
 
     @property
     def get_testers_ids(self) -> Set[str]:
-        return set(map(
-            attrgetter("tester_id"),
-            self.port_identities.values()
-        ))
+        return set(map(attrgetter("tester_id"), self.port_identities))
 
 
 class LegacySegmentField(BaseModel):
-    name: str = Field(alias='Name')
-    bit_length: int = Field(alias='BitLength')
-    bit_position: Optional[int] = None # position of current segment
+    name: str = Field(alias="Name")
+    bit_length: int = Field(alias="BitLength")
+    bit_position: Optional[int] = None  # position of current segment
 
 
 class SegmentRef(BaseModel):
-    name: str = Field(alias='Name')
-    description: str = Field(alias='Description')
-    segment_type: str = Field(alias='SegmentType')
-    checksum_offset: Optional[int] = Field(alias='ChecksumOffset')
-    protocol_fields: List[LegacySegmentField] = Field(alias='ProtocolFields')
+    name: str = Field(alias="Name")
+    description: str = Field(alias="Description")
+    segment_type: str = Field(alias="SegmentType")
+    checksum_offset: Optional[int] = Field(alias="ChecksumOffset")
+    protocol_fields: List[LegacySegmentField] = Field(alias="ProtocolFields")
 
     def calc_field_position(self) -> None:
         bit_position_count = 0
@@ -69,11 +66,15 @@ class SegmentRef(BaseModel):
 
 
 def load_segment_refs_json(segment_type_value: str) -> SegmentRef:
-    segment_ref = SegmentRef.parse_file(SEGMENT_REFS_FOLDER / f'{segment_type_value}.json')
+    segment_ref = SegmentRef.parse_file(
+        SEGMENT_REFS_FOLDER / f"{segment_type_value}.json"
+    )
     return segment_ref
 
 
-def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandler", target_module: "ModuleType") -> Dict:
+def convert_protocol_segments(
+    stream_profile_handler: "LegacyStreamProfileHandler", target_module: "ModuleType"
+) -> Dict:
     protocol_segments_profile = {}
 
     for profile in stream_profile_handler.entity_list:
@@ -97,7 +98,9 @@ def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandle
                     )
             for hvr in profile.stream_config.field_value_ranges:
                 if hvr.segment_id == hs.item_id:
-                    field_value_ranges[hvr.field_name] = target_module.ValueRange.construct(
+                    field_value_ranges[
+                        hvr.field_name
+                    ] = target_module.ValueRange.construct(
                         field_name=hvr.field_name,
                         start_value=hvr.start_value,
                         stop_value=hvr.stop_value,
@@ -109,20 +112,22 @@ def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandle
                     )
 
             segment_ref = load_segment_refs_json(hs.segment_type.value)
-            segment_value = bin(int('1'+base64.b64decode(hs.segment_value).hex(), 16))[3:]
+            segment_value = bin(
+                int("1" + base64.b64decode(hs.segment_value).hex(), 16)
+            )[3:]
             converted_fields = []
 
             for field in segment_ref.protocol_fields:
                 converted_fields.append(
                     target_module.SegmentField.construct(
                         name=field.name,
-                        value=segment_value[:field.bit_length],
+                        value=segment_value[: field.bit_length],
                         bit_length=field.bit_length,
                         hw_modifier=hw_modifiers.get(field.name),
                         value_range=field_value_ranges.get(field.name),
                     )
                 )
-                segment_value = segment_value[field.bit_length:]
+                segment_value = segment_value[field.bit_length :]
 
             segment = target_module.ProtocolSegment.construct(
                 segment_type=target_module.SegmentType[hs.segment_type.name.lower()],
@@ -131,5 +136,9 @@ def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandle
             )
             header_segments.append(segment)
 
-        protocol_segments_profile[profile.item_id] = target_module.ProtocolSegmentProfileConfig.construct(header_segments=header_segments)
+        protocol_segments_profile[
+            profile.item_id
+        ] = target_module.ProtocolSegmentProfileConfig.construct(
+            header_segments=header_segments
+        )
     return protocol_segments_profile

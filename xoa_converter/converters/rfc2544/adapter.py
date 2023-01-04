@@ -118,7 +118,12 @@ class Converter2544:
             frame_sizes=frame_size,
             use_micro_tpld_on_demand=flow_option.use_micro_tpld_on_demand,
             payload_type=payload.payload_type,
-            payload_pattern=payload.payload_pattern,
+            payload_pattern="".join(
+                [
+                    hex(int(i)).replace("0x", "").zfill(2)
+                    for i in payload.payload_pattern.split(",")
+                ]
+            ),
             multi_stream_config=self.__gen_multi_stream_config(),
         )
 
@@ -244,11 +249,9 @@ class Converter2544:
         return chassis_id_map
 
     def __gen_port_identity(self) -> List["PortIdentity"]:
-
         chassis_id_map = self.__gen_chassis_id_map()
         port_identity = []
-        count = 0
-        for p_info in self.data.port_handler.entity_list:
+        for count, p_info in enumerate(self.data.port_handler.entity_list):
             port = p_info.port_ref
             port.chassis_id = chassis_id_map[port.chassis_id]
             identity = PortIdentity(
@@ -258,7 +261,6 @@ class Converter2544:
             )
             self.id_map[p_info.item_id] = (f"{identity.name}", f"p{count}")
             port_identity.append(identity)
-            count += 1
         return port_identity
 
     def __gen_ipv4_addr(self, entity: "LegacyPortEntity"):

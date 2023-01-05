@@ -1,4 +1,4 @@
-About XOA Test Configuration Converter
+Introduction
 =========================================
 
 Xena's test suite applications have only been for Windows platform for a long time. Moving forward, all of Xena's existing and future test suites will be included in Xena OpenAutomation, which is not limited to Windows anymore. 

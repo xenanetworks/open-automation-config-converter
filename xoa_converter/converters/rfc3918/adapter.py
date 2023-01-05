@@ -1,6 +1,6 @@
 import base64
 import hashlib
-from typing import Any, Dict
+from typing import Any, Dict, List
 import types
 
 
@@ -92,26 +92,39 @@ class Converter3918:
                 )
         return protocol_segments_profile
 
+    # def __gen_port_identity(self) -> List["PortIdentity"]:
+    #     chassis_id_map = self.__gen_chassis_id_map()
+    #     port_identity = []
+    #     for count, p_info in enumerate(self.data.port_handler.entity_list):
+    #         port = p_info.port_ref
+    #         port.chassis_id = chassis_id_map[port.chassis_id]
+    #         identity = PortIdentity(
+    #             tester_id=port.chassis_id,
+    #             module_index=port.module_index,
+    #             port_index=port.port_index,
+    #         )
+    #         self.id_map[p_info.item_id] = (f"{identity.name}", f"p{count}")
+    #         port_identity.append(identity)
+    #     return port_identity
+
     def __gen_port_identity(
         self, chassis_id_map: Dict[str, Dict[str, Any]]
-    ) -> Dict[str, "PortIdentity"]:
+    ) -> List["PortIdentity"]:
+        port_identities = []
+        for count, p_info in enumerate(
+            self.data.legacy_port_handler.legacy_entity_list
+        ):
 
-        port_identity = {
-            f"p{count}": PortIdentity(
+            port_identity = PortIdentity(
                 tester_id=chassis_id_map[p_info.legacy_port_ref.legacy_chassis_id][
                     "id"
-                ],
-                tester_index=chassis_id_map[p_info.legacy_port_ref.legacy_chassis_id][
-                    "index"
                 ],
                 module_index=p_info.legacy_port_ref.legacy_module_index,
                 port_index=p_info.legacy_port_ref.legacy_port_index,
             )
-            for count, p_info in enumerate(
-                self.data.legacy_port_handler.legacy_entity_list
-            )
-        }
-        return port_identity
+            port_identities.append(port_identity)
+
+        return port_identities
 
     def __gen_chassis_id_map(self) -> Dict[str, Dict[str, Any]]:
         return {
@@ -131,10 +144,10 @@ class Converter3918:
     def __gen_port_id_map(self, chassis_id_map) -> Dict[str, Dict[str, str]]:
         return {
             p_info.legacy_item_id: {
-                "config": f"g-{chassis_id_map[p_info.legacy_port_ref.legacy_chassis_id]['index']}-{p_info.legacy_port_ref.legacy_module_index}-{p_info.legacy_port_ref.legacy_port_index}",
-                "identity": f"p{count}",
+                "config": f"P-{chassis_id_map[p_info.legacy_port_ref.legacy_chassis_id]['id']}-{p_info.legacy_port_ref.legacy_module_index}-{p_info.legacy_port_ref.legacy_port_index}",
+                "identity": f"p{index}",
             }
-            for count, p_info in enumerate(
+            for index, p_info in enumerate(
                 self.data.legacy_port_handler.legacy_entity_list
             )
         }
@@ -182,7 +195,6 @@ class Converter3918:
             ]: self.module.PortConfiguration.construct(
                 port_slot=port_id_map[entity.legacy_item_id]["identity"],
                 port_config_slot=port_id_map[entity.legacy_item_id]["config"],
-                # port_group=PortGroup[entity.legacy_port_group],
                 port_speed_mode=self.module.PortSpeedMode(entity.legacy_port_speed),
                 ipv4_properties=self.__gen_ipv4_addr(entity),
                 ipv6_properties=self.__gen_ipv6_addr(entity),

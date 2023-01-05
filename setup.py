@@ -16,7 +16,7 @@ def main():
         url="https://github.com/xenanetworks/open-automation-config-converter",
         packages=setuptools.find_packages(),
         license='Apache 2.0',
-        install_requires=["pydantic", "datamodel-code-generator"],
+        install_requires=["pydantic>=1.8.2", "datamodel-code-generator"],
         classifiers=[
             "Development Status :: 5 - Production/Stable",
             "Intended Audience :: Developers",

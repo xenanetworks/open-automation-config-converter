@@ -7,19 +7,20 @@ from typing import (
     Optional,
     Set,
     TYPE_CHECKING,
+    Union,
 )
 from pydantic import BaseModel
 from pydantic.fields import Field
 from operator import attrgetter
 
 if TYPE_CHECKING:
-    from xoa_converter.converters.rfc2544.model import LegacyStreamProfileHandler
+    from xoa_converter.converters.rfc2544.model import LegacyStreamProfileHandler as LegacyStreamProfile2544
     from types import ModuleType
+
 
 
 CURRENT_FILE_PARENT_PATH = Path(__file__).parent.resolve()
 SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / 'segment_refs'
-
 
 class PortIdentity(BaseModel):
     tester_id: str
@@ -74,7 +75,7 @@ def load_segment_refs_json(segment_type_value: str) -> SegmentRef:
     return segment_ref
 
 
-def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfileHandler", target_module: "ModuleType") -> Dict:
+def convert_protocol_segments(stream_profile_handler: "LegacyStreamProfile2544", target_module: "ModuleType") -> Dict:
     protocol_segments_profile = {}
 
     for profile in stream_profile_handler.entity_list:

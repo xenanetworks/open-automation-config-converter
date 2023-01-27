@@ -14,7 +14,7 @@ class LegacyDurationType(Enum):
     TIME = "seconds"
     FRAMES = "frames"
 
-    
+
     @property
     def is_time_duration(self):
         return self == LegacyDurationType.TIME

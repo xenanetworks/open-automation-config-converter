@@ -22,6 +22,7 @@ if TYPE_CHECKING:
         LegacyPortEntity,
         LegacyThroughput,
     )
+from loguru import logger
 
 
 def convert_base_mac_address(mac_address: str) -> str:
@@ -293,6 +294,8 @@ class Converter2544:
         profile_id = self.data.stream_profile_handler.profile_assignment_map.get(
             f"guid_{entity.item_id}"
         )
+        logger.debug(list(self.module.PortRateCapProfile))
+        logger.debug(entity.port_rate_cap_profile.name)
         return self.module.PortConfiguration.construct(
             port_slot=self.id_map[entity.item_id][1],
             peer_config_slot=self.id_map[entity.pair_peer_id][0]

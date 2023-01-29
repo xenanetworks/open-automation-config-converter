@@ -50,8 +50,8 @@ class Converter3918:
             header_segments = []
             for hs in profile.legacy_stream_config.legacy_header_segments:
                 header_segments.append(
-                    self.module.HeaderSegment.construct(
-                        segment_type=from_legacy_protocol_option(
+                    dict(
+                        type=from_legacy_protocol_option(
                             hs.legacy_segment_type
                         ),
                         segment_value="".join(
@@ -66,7 +66,7 @@ class Converter3918:
                 )
                 protocol_segments_profile[
                     profile.legacy_item_id
-                ] = self.module.ProtocolSegmentProfileConfig.construct(
+                ] = dict(
                     header_segments=header_segments,
                     payload_type=self.module.PayloadType(
                         from_legacy_payload_type(
@@ -153,7 +153,7 @@ class Converter3918:
         }
 
     def __gen_ipv4_addr(self, entity: "LegacyPortEntity"):
-        return self.module.IPV4AddressProperties.construct(
+        return dict(
             address=(entity.legacy_ip_v4_address),
             routing_prefix=entity.legacy_ip_v4_routing_prefix,
             gateway=(entity.legacy_ip_v4_gateway)
@@ -169,7 +169,7 @@ class Converter3918:
         )
 
     def __gen_ipv6_addr(self, entity: "LegacyPortEntity"):
-        return self.module.IPV6AddressProperties.construct(
+        return dict(
             address=(entity.legacy_ip_v6_address),
             routing_prefix=entity.legacy_ip_v6_routing_prefix,
             gateway=(entity.legacy_ip_v6_gateway)
@@ -192,7 +192,7 @@ class Converter3918:
         return {
             port_id_map[entity.legacy_item_id][
                 "config"
-            ]: self.module.PortConfiguration.construct(
+            ]: dict(
                 port_slot=port_id_map[entity.legacy_item_id]["identity"],
                 port_config_slot=port_id_map[entity.legacy_item_id]["config"],
                 port_speed_mode=self.module.PortSpeedMode(entity.legacy_port_speed),
@@ -246,7 +246,7 @@ class Converter3918:
     def __gen_frame_size(self):
         packet_size = self.data.legacy_test_options.legacy_packet_sizes
         fz = packet_size.legacy_mixed_length_config.legacy_frame_sizes
-        return self.module.FrameSizeConfiguration.construct(
+        return dict(
             packet_size_type=self.module.PacketSizeType(
                 from_legacy_packet_size_type(packet_size.legacy_packet_size_type)
             ),
@@ -259,7 +259,7 @@ class Converter3918:
             mixed_sizes_weights=packet_size.legacy_mixed_sizes_weights
             if packet_size.legacy_mixed_sizes_weights
             else MIXED_DEFAULT_WEIGHTS,
-            mixed_length_config=self.module.FrameSizesOptions.construct(
+            mixed_length_config=dict(
                 field_0=fz.get("0", 56),
                 field_1=fz.get("1", 60),
                 field_14=fz.get("14", 9216),
@@ -270,7 +270,7 @@ class Converter3918:
     def __gen_test_config(self):
         test_options = self.data.legacy_test_options
         flow_option = test_options.legacy_flow_creation_options
-        return self.module.TestConfiguration3918.construct(
+        return dict(
             tid_offset=test_options.legacy_tid_offset,
             flow_creation_type=self.module.FlowCreationType(
                 from_legacy_flow_creation_type(flow_option.legacy_flow_creation_type)
@@ -309,13 +309,13 @@ class Converter3918:
             self.data.legacy_test_options.legacy_test_type_option_map.legacy_group_join_leave_delay
         )
         return (
-            self.module.GroupJoinLeaveDelay.construct(
+            dict(
                 iterations=group_join_leave_delay.legacy_iterations,
                 duration=group_join_leave_delay.legacy_duration,
                 traffic_to_join_delay=group_join_leave_delay.legacy_traffic_to_join_delay,
                 join_to_traffic_delay=group_join_leave_delay.legacy_join_to_traffic_delay,
                 leave_to_stop_delay=group_join_leave_delay.legacy_leave_to_stop_delay,
-                rate_options=self.module.RateOptionsStartEndStep.construct(
+                rate_options=dict(
                     start_value=group_join_leave_delay.legacy_rate_options.legacy_start_value,
                     end_value=group_join_leave_delay.legacy_rate_options.legacy_end_value,
                     step_value=group_join_leave_delay.legacy_rate_options.legacy_step_value,
@@ -330,11 +330,11 @@ class Converter3918:
             self.data.legacy_test_options.legacy_test_type_option_map.legacy_multicast_group_capacity
         )
         return (
-            self.module.MulticastGroupCapacity.construct(
+            dict(
                 group_count_start=multicast_group_capacity.legacy_group_count_start,
                 group_count_end=multicast_group_capacity.legacy_group_count_end,
                 group_count_step=multicast_group_capacity.legacy_group_count_step,
-                rate_options=self.module.RateOptionsStartEndStep.construct(
+                rate_options=dict(
                     start_value=multicast_group_capacity.legacy_rate_options.legacy_start_value,
                     end_value=multicast_group_capacity.legacy_rate_options.legacy_end_value,
                     step_value=multicast_group_capacity.legacy_rate_options.legacy_step_value,
@@ -354,8 +354,8 @@ class Converter3918:
             self.data.legacy_test_options.legacy_test_type_option_map.legacy_aggregated_throughput
         )
         return (
-            self.module.AggregatedMulticastThroughput.construct(
-                rate_options=self.module.RateOptionsInitialMinMax.construct(
+            dict(
+                rate_options=dict(
                     initial_value=aggregated_throughput.legacy_rate_options.legacy_initial_value,
                     minimum_value=aggregated_throughput.legacy_rate_options.legacy_minimum_value,
                     maximum_value=aggregated_throughput.legacy_rate_options.legacy_maximum_value,
@@ -363,7 +363,7 @@ class Converter3918:
                     use_pass_threshold=aggregated_throughput.legacy_rate_options.legacy_use_pass_threshold,
                     pass_threshold=aggregated_throughput.legacy_rate_options.legacy_pass_threshold,
                 ),
-                group_count_def=self.module.GroupCountDef.construct(
+                group_count_def=dict(
                     group_count_sel=self.module.GroupCountSel(
                         aggregated_throughput.legacy_group_count_def.legacy_group_count_sel
                     ),
@@ -387,12 +387,12 @@ class Converter3918:
             self.data.legacy_test_options.legacy_test_type_option_map.legacy_scaled_group_throughput
         )
         return (
-            self.module.ScaledGroupForwardingMatrix.construct(
+            dict(
                 group_count_start=scaled_group_throughput.legacy_group_count_start,
                 group_count_end=scaled_group_throughput.legacy_group_count_end,
                 group_count_step=scaled_group_throughput.legacy_group_count_step,
                 use_max_capacity_result=scaled_group_throughput.legacy_use_max_capacity_result,
-                rate_options=self.module.RateOptionsStartEndStep.construct(
+                rate_options=dict(
                     start_value=scaled_group_throughput.legacy_rate_options.legacy_start_value,
                     end_value=scaled_group_throughput.legacy_rate_options.legacy_end_value,
                     step_value=scaled_group_throughput.legacy_rate_options.legacy_step_value,
@@ -412,8 +412,8 @@ class Converter3918:
             self.data.legacy_test_options.legacy_test_type_option_map.legacy_mixed_class_throughput
         )
         return (
-            self.module.MixedClassThroughput.construct(
-                rate_options=self.module.RateOptionsInitialMinMax.construct(
+            dict(
+                rate_options=dict(
                     initial_value=mixed_class_throughput.legacy_rate_options.legacy_initial_value,
                     minimum_value=mixed_class_throughput.legacy_rate_options.legacy_minimum_value,
                     maximum_value=mixed_class_throughput.legacy_rate_options.legacy_maximum_value,
@@ -422,7 +422,7 @@ class Converter3918:
                     pass_threshold=mixed_class_throughput.legacy_rate_options.legacy_pass_threshold,
                 ),
                 uc_traffic_load_ratio=mixed_class_throughput.legacy_uc_traffic_load_ratio,
-                group_count_def=self.module.GroupCountDef.construct(
+                group_count_def=dict(
                     group_count_sel=self.module.GroupCountSel(
                         mixed_class_throughput.legacy_group_count_def.legacy_group_count_sel
                     ),
@@ -446,13 +446,13 @@ class Converter3918:
             self.data.legacy_test_options.legacy_test_type_option_map.legacy_latency
         )
         return (
-            self.module.MulticastLatency.construct(
-                rate_options=self.module.RateOptionsStartEndStep.construct(
+            dict(
+                rate_options=dict(
                     start_value=latency.legacy_rate_options.legacy_start_value,
                     end_value=latency.legacy_rate_options.legacy_end_value,
                     step_value=latency.legacy_rate_options.legacy_step_value,
                 ),
-                group_count_def=self.module.GroupCountDef.construct(
+                group_count_def=dict(
                     group_count_sel=self.module.GroupCountSel(
                         latency.legacy_group_count_def.legacy_group_count_sel
                     ),
@@ -476,8 +476,8 @@ class Converter3918:
             self.data.legacy_test_options.legacy_test_type_option_map.legacy_burdened_join_delay
         )
         return (
-            self.module.BurdenedGroupJoinDelay.construct(
-                rate_options=self.module.RateOptionsStartEndStep.construct(
+            dict(
+                rate_options=dict(
                     start_value=burdened_join_delay.legacy_rate_options.legacy_start_value,
                     end_value=burdened_join_delay.legacy_rate_options.legacy_end_value,
                     step_value=burdened_join_delay.legacy_rate_options.legacy_step_value,
@@ -498,13 +498,13 @@ class Converter3918:
             self.data.legacy_test_options.legacy_test_type_option_map.legacy_burdened_latency
         )
         return (
-            self.module.BurdenedMulticastLatency.construct(
-                rate_options=self.module.RateOptionsStartEndStep.construct(
+            dict(
+                rate_options=dict(
                     start_value=burdened_latency.legacy_rate_options.legacy_start_value,
                     end_value=burdened_latency.legacy_rate_options.legacy_end_value,
                     step_value=burdened_latency.legacy_rate_options.legacy_step_value,
                 ),
-                group_count_def=self.module.GroupCountDef.construct(
+                group_count_def=dict(
                     group_count_sel=self.module.GroupCountSel(
                         burdened_latency.legacy_group_count_def.legacy_group_count_sel
                     ),
@@ -525,7 +525,7 @@ class Converter3918:
         )
 
     def __gen_test_type_config(self):
-        return self.module.TestTypeConfiguration3918.construct(
+        return dict(
             group_join_leave_delay=self.__gen_group_join_leave_delay(),
             multicast_group_capacity=self.__gen_multicast_group_capacity(),
             aggregated_multicast_throughput=self.__gen_aggregated_throughput(),
@@ -599,7 +599,7 @@ class Converter3918:
         uc_seg_result.rate_fraction = uc_def_seg.legacy_rate_fraction
         uc_seg_result.rate_pps = uc_def_seg.legacy_rate_pps
 
-        return self.module.McDefinition.construct(
+        return dict(
             comments=mc_def.legacy_comments,
             igmp_version=self.module.IgmpVersion(
                 from_legacy_igmp_version(mc_def.legacy_igmp_version)
@@ -614,7 +614,7 @@ class Converter3918:
             mc_ip_v6_start_address=(mc_def.legacy_mc_ip_v6_start_address),
             mc_address_step_value=mc_def.legacy_mc_address_step_value,
             stream_definition=mc_seg_result,
-            uc_flow_def=self.module.UcFlowDefinition.construct(
+            uc_flow_def=dict(
                 comment=uc_def.legacy_comments,
                 topology=self.module.TestTopology(
                     from_legacy_test_topology(
@@ -638,7 +638,7 @@ class Converter3918:
         return TestParameters(
             username="3918",
             port_identities=self.__gen_port_identity(tester_id_map),
-            config=self.module.Model3918.construct(
+            config=dict(
                 mc_definition=self.__gen_mc_definition(protocol_segments),
                 protocol_segments=protocol_segments,
                 ports_configuration=self.__gen_port_config(

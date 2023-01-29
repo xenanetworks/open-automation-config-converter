@@ -73,41 +73,35 @@ def load_segment_refs_json(segment_type_value: str) -> SegmentRef:
 
 
 def convert_protocol_segments(
-    stream_profile_handler: "LegacyStreamProfileHandler", target_module: "ModuleType"
-) -> Dict:
-    protocol_segments_profile = {}
+    stream_profile_handler: "LegacyStreamProfileHandler",
+) -> List:
+    protocol_segments_profile = []
 
     for profile in stream_profile_handler.entity_list:
-        header_segments = []
+        segments = []
 
         for hs in profile.stream_config.header_segments:
             hw_modifiers = {}
             field_value_ranges = {}
             for hm in profile.stream_config.hw_modifiers:
                 if hm.segment_id == hs.item_id:
-                    hw_modifiers[hm.field_name] = target_module.HWModifier.construct(
+                    hw_modifiers[hm.field_name] = dict(
                         start_value=hm.start_value,
                         stop_value=hm.stop_value,
                         step_value=hm.step_value,
                         repeat=hm.repeat_count,
-                        action=target_module.ModifierActionOption[
-                            hm.action.name.lower()
-                        ],
+                        action=hm.action.name.lower(),
                         mask=f"{base64.b64decode(hm.mask).hex()}0000",
                         offset=hm.offset,
                     )
             for hvr in profile.stream_config.field_value_ranges:
                 if hvr.segment_id == hs.item_id:
-                    field_value_ranges[
-                        hvr.field_name
-                    ] = target_module.ValueRange.construct(
+                    field_value_ranges[hvr.field_name] = dict(
                         field_name=hvr.field_name,
                         start_value=hvr.start_value,
                         stop_value=hvr.stop_value,
                         step_value=hvr.step_value,
-                        action=target_module.ModifierActionOption[
-                            hvr.action.name.lower()
-                        ],
+                        action=hvr.action.name.lower(),
                         restart_for_each_port=hvr.reset_for_each_port,
                     )
 
@@ -119,7 +113,7 @@ def convert_protocol_segments(
 
             for field in segment_ref.protocol_fields:
                 converted_fields.append(
-                    target_module.SegmentField.construct(
+                    dict(
                         name=field.name,
                         value=segment_value[: field.bit_length],
                         bit_length=field.bit_length,
@@ -129,16 +123,13 @@ def convert_protocol_segments(
                 )
                 segment_value = segment_value[field.bit_length :]
 
-            segment = target_module.ProtocolSegment.construct(
-                segment_type=target_module.SegmentType[hs.segment_type.name.lower()],
+            segment = dict(
+                type=hs.segment_type.name.lower(),
                 fields=converted_fields,
                 checksum_offset=segment_ref.checksum_offset,
             )
-            header_segments.append(segment)
+            segments.append(segment)
 
-        protocol_segments_profile[
-            profile.item_id
-        ] = target_module.ProtocolSegmentProfileConfig.construct(
-            header_segments=header_segments
-        )
+        protocol_segments_profile.append(dict(id=profile.item_id, segments=segments))
+
     return protocol_segments_profile

@@ -1,14 +1,12 @@
 import base64
 import hashlib
-import types
-from decimal import Decimal
 from typing import Dict, TYPE_CHECKING
 from .model import (
+    LegacyPortRoleHandler,
     ValkyrieConfiguration2889 as old_model,
     LegacyFrameSizesOptions,
 )
 from ..common import (
-    TestParameters,
     PortIdentity,
     load_segment_refs_json,
 )
@@ -20,9 +18,8 @@ if TYPE_CHECKING:
 
 
 class Converter2889:
-    def __init__(self, source_config: str, target_module: types.ModuleType) -> None:
+    def __init__(self, source_config: str) -> None:
         self.id_map = {}
-        self.module = target_module
         self.data = old_model.parse_raw(source_config)
 
     def __gen_port_identity(self) -> Dict[str, "PortIdentity"]:
@@ -39,20 +36,21 @@ class Converter2889:
         for p_info in self.data.port_handler.entity_list:
             port = p_info.port_ref
             port.chassis_id = chassis_id_map[port.chassis_id]
-            identity = PortIdentity(
+            identity = dict(
                 tester_id=port.chassis_id,
                 tester_index=chassis_id_list.index(port.chassis_id),
                 module_index=port.module_index,
                 port_index=port.port_index,
             )
 
-            self.id_map[p_info.item_id] = (f"{identity.name}", f"p{count}")
+            name = f"P-{identity['tester_index']}-{identity['module_index']}-{identity['port_index']}"
+            self.id_map[p_info.item_id] = (f"{name}", f"p{count}")
             port_identity[f"p{count}"] = identity
             count += 1
         return port_identity
 
     def __gen_ipv4_addr(self, entity: "LegacyPortEntity"):
-        return self.module.IPV4AddressProperties.construct(
+        return dict(
             address=entity.ip_v4_address,
             routing_prefix=entity.ip_v4_routing_prefix,
             gateway=entity.ip_v4_gateway if entity.ip_v4_gateway else "0.0.0.0",
@@ -66,7 +64,7 @@ class Converter2889:
         )
 
     def __gen_ipv6_addr(self, entity: "LegacyPortEntity"):
-        return self.module.IPV6AddressProperties.construct(
+        return dict(
             address=entity.ip_v6_address,
             routing_prefix=entity.ip_v6_routing_prefix,
             gateway=entity.ip_v6_gateway if entity.ip_v6_gateway else "::",
@@ -81,12 +79,12 @@ class Converter2889:
 
     def __gen_port_conf(self, entity: "LegacyPortEntity"):
         profile_id = self.data.stream_profile_handler.profile_assignment_map.get(f"guid_{entity.item_id}")
-        return self.module.PortConfiguration.construct(
+        return dict(
             port_slot=self.id_map[entity.item_id][1],
             peer_config_slot=self.id_map[entity.pair_peer_id][0]
             if entity.pair_peer_id and entity.pair_peer_id in self.id_map
             else "",
-            port_group=entity.port_group,
+            port_group=entity.port_group.value.lower(),
             port_speed_mode=entity.port_speed,
             ipv4_properties=self.__gen_ipv4_addr(entity),
             ipv6_properties=self.__gen_ipv6_addr(entity),
@@ -98,15 +96,15 @@ class Converter2889:
             speed_reduction_ppm=entity.adjust_ppm,
             pause_mode_enabled=entity.pause_mode_on,
             latency_offset_ms=entity.latency_offset,
-            fec_mode=self.module.FECModeStr[entity.fec_mode.name.lower()],
+            fec_mode=entity.fec_mode.name.lower(),
             port_rate_cap_enabled=bool(entity.enable_port_rate_cap),
             port_rate_cap_value=entity.port_rate_cap_value,
-            port_rate_cap_profile=self.module.PortRateCapProfile[entity.port_rate_cap_profile.name.lower()],
-            port_rate_cap_unit=self.module.PortRateCapUnit[entity.port_rate_cap_unit.name.lower()],
+            port_rate_cap_profile=entity.port_rate_cap_profile.name.lower(),
+            port_rate_cap_unit=entity.port_rate_cap_unit.name.lower(),
             auto_neg_enabled=bool(entity.auto_neg_enabled),
             anlt_enabled=bool(entity.anlt_enabled),
             mdi_mdix_mode=entity.mdi_mdix_mode,
-            broadr_reach_mode=entity.brr_mode,
+            broadr_reach_mode=entity.brr_mode.value.lower(),
             profile_id=profile_id,
             item_id=entity.item_id,
         )
@@ -121,8 +119,8 @@ class Converter2889:
         packet_size = self.data.test_options.packet_sizes
         packet_size_type = packet_size.packet_size_type
         fz = packet_size.mixed_length_config.frame_sizes
-        return self.module.FrameSizeConfiguration.construct(
-            packet_size_type=self.module.PacketSizeType[packet_size_type.name.lower()],
+        return dict(
+            packet_size_type=packet_size_type.name.lower(),
             custom_packet_sizes=packet_size.custom_packet_sizes,
             fixed_packet_start_size=packet_size.sw_packet_start_size,
             fixed_packet_end_size=packet_size.sw_packet_end_size,
@@ -130,22 +128,22 @@ class Converter2889:
             varying_packet_min_size=packet_size.hw_packet_min_size,
             varying_packet_max_size=packet_size.hw_packet_max_size,
             mixed_sizes_weights=packet_size.mixed_sizes_weights,
-            mixed_length_config=LegacyFrameSizesOptions(**fz),
+            mixed_length_config=LegacyFrameSizesOptions(**fz).dict(),
         )
 
     def __gen_rate_definition(self):
-        return self.module.RateDefinition.construct(
-            rate_type=self.module.StreamRateType[self.data.test_options.rate_definition.rate_type.name.lower()],
+        return dict(
+            rate_type=self.data.test_options.rate_definition.rate_type.name.lower(),
             rate_fraction=self.data.test_options.rate_definition.rate_fraction,
             rate_pps=self.data.test_options.rate_definition.rate_pps,
             rate_bps_l1=self.data.test_options.rate_definition.rate_bps_l1,
-            rate_bps_l1_unit=self.module.PortRateCapUnit[ self.data.test_options.rate_definition.rate_bps_l1_unit.name.lower() ],
+            rate_bps_l1_unit=self.data.test_options.rate_definition.rate_bps_l1_unit.name.lower(),
             rate_bps_l2=self.data.test_options.rate_definition.rate_bps_l2,
-            rate_bps_l2_unit= self.module.PortRateCapUnit[ self.data.test_options.rate_definition.rate_bps_l2_unit.name.lower() ],
+            rate_bps_l2_unit=self.data.test_options.rate_definition.rate_bps_l2_unit.name.lower(),
         )
 
     def __gen_general_test_config(self):
-        return self.module.GeneralTestConfiguration.construct(
+        return dict(
             frame_sizes=self.__gen_frame_size(),
             rate_definition=self.__gen_rate_definition(),
             latency_mode=self.data.test_options.latency_mode,
@@ -157,11 +155,11 @@ class Converter2889:
             use_port_sync_start=self.data.test_options.use_port_sync_start,
             port_stagger_steps=self.data.test_options.port_stagger_steps,
             use_micro_tpld_on_demand=self.data.test_options.flow_creation_options.use_micro_tpld_on_demand,
-            tid_allocation_scope=self.module.TidAllocationScope[ self.data.tid_allocation_scope.name.lower() ],
+            tid_allocation_scope=self.data.tid_allocation_scope.name.lower(),
         )
 
     def __gen_rate_iteration_options(self, rate_iteration_options):
-        return self.module.RateIterationOptions.construct(
+        return dict(
             initial_value=rate_iteration_options.initial_value,
             minimum_value=rate_iteration_options.minimum_value,
             maximum_value=rate_iteration_options.maximum_value,
@@ -170,31 +168,38 @@ class Converter2889:
             pass_threshold=rate_iteration_options.pass_threshold,
         )
     def __gen_rate_sweep_option(self, rate_sweep_options):
-        return self.module.NewRateSweepOptions.construct(
-            start_value=Decimal(rate_sweep_options.start_value),
-            end_value=Decimal(rate_sweep_options.end_value),
-            step_value=Decimal(rate_sweep_options.step_value),
+        return dict(
+            start_value=rate_sweep_options.start_value,
+            end_value=rate_sweep_options.end_value,
+            step_value=rate_sweep_options.step_value,
         )
 
     def __gather_test_case_common_config(self, test_case_config):
         return dict(
             enabled=test_case_config.enabled,
             duration=test_case_config.duration,
-            duration_time_unit=test_case_config.duration_time_unit,
+            duration_time_unit=test_case_config.duration_time_unit.value.lower(),
             iterations=test_case_config.iterations,
             item_id=test_case_config.item_id,
             label=test_case_config.label,
         )
+
+    def __gen_test_port_role(self, port_role_handler: LegacyPortRoleHandler):
+        role_map = {}
+        for k, v in port_role_handler.role_map.items():
+            v.role = v.role.value.lower()
+            role_map[k] = v.dict()
+        return {'role_map': role_map}
 
     def __gen_rate_test(self):
         rate_test_config = self.data.test_options.test_type_option_map.rate_test
         all_rate_sub_tests = []
 
         for sub_test in rate_test_config.rate_sub_test_handler.rate_sub_tests:
-            rate_sub_test = self.module.RateSubTestConfiguration.construct(
-                topology=sub_test.topology,
-                direction=self.module.TrafficDirection[ sub_test.direction.name.lower() ],
-                port_role_handler=sub_test.port_role_handler,
+            rate_sub_test = dict(
+                topology=sub_test.topology.value.lower(),
+                direction=sub_test.direction.name.lower(),
+                port_role_handler=self.__gen_test_port_role(sub_test.port_role_handler),
                 throughput_test_enabled=sub_test.throughput_test_enabled,
                 rate_iteration_options=self.__gen_rate_iteration_options(
                     sub_test.rate_iteration_options
@@ -205,21 +210,21 @@ class Converter2889:
             )
             all_rate_sub_tests.append(rate_sub_test)
 
-        return self.module.RateTestConfiguration.construct(
+        return dict(
             sub_test=all_rate_sub_tests,
             **self.__gather_test_case_common_config(rate_test_config),
         )
 
     def __gen_congestion_control(self):
-        return self.module.CongestionControlConfiguration.construct(
-            port_role_handler=self.data.test_options.test_type_option_map.congestion_control.port_role_handler,
+        return dict(
+            port_role_handler=self.__gen_test_port_role(self.data.test_options.test_type_option_map.congestion_control.port_role_handler),
             **self.__gather_test_case_common_config(self.data.test_options.test_type_option_map.congestion_control)
         )
 
     def __gen_forward_pressure(self):
         forward_pressure = self.data.test_options.test_type_option_map.forward_pressure
-        return self.module.ForwardPressureConfiguration.construct(
-            port_role_handler=forward_pressure.port_role_handler,
+        return dict(
+            port_role_handler=self.__gen_test_port_role(forward_pressure.port_role_handler),
             interframe_gap_delta=forward_pressure.interframe_gap_delta,
             acceptable_rx_max_util_delta=forward_pressure.acceptable_rx_max_util_delta,
             **self.__gather_test_case_common_config(forward_pressure)
@@ -227,8 +232,8 @@ class Converter2889:
 
     def __gen_max_forwarding_rate(self):
         max_forwarding_rate = self.data.test_options.test_type_option_map.max_forwarding_rate
-        return self.module.MaxForwardingRateConfiguration.construct(
-            port_role_handler=max_forwarding_rate.port_role_handler,
+        return dict(
+            port_role_handler=self.__gen_test_port_role(max_forwarding_rate.port_role_handler),
             use_throughput_as_start_value=max_forwarding_rate.use_throughput_as_start_value,
             rate_sweep_options=self.__gen_rate_sweep_option(max_forwarding_rate.rate_sweep_options),
             **self.__gather_test_case_common_config(max_forwarding_rate),
@@ -236,14 +241,14 @@ class Converter2889:
 
     def __gen_address_caching_capacity(self):
         address_caching_capacity = self.data.test_options.test_type_option_map.address_caching_capacity
-        return self.module.AddressCachingCapacityConfiguration.construct(
-            port_role_handler=address_caching_capacity.port_role_handler,
+        return dict(
+            port_role_handler=self.__gen_test_port_role(address_caching_capacity.port_role_handler),
             address_iteration_options=self.__gen_rate_iteration_options(address_caching_capacity.address_iteration_options),
             rate_sweep_options=self.__gen_rate_sweep_option(address_caching_capacity.rate_sweep_options),
             learn_mac_base_address=address_caching_capacity.learn_mac_base_address,
-            test_port_mac_mode=address_caching_capacity.test_port_mac_mode,
-            learning_port_dmac_mode=address_caching_capacity.learning_port_dmac_mode,
-            learning_sequence_port_dmac_mode=address_caching_capacity.learning_sequence_port_dmac_mode,
+            test_port_mac_mode=address_caching_capacity.test_port_mac_mode.value.lower(),
+            learning_port_dmac_mode=address_caching_capacity.learning_port_dmac_mode.value.lower(),
+            learning_sequence_port_dmac_mode=address_caching_capacity.learning_sequence_port_dmac_mode.value.lower(),
             learning_rate_fps=address_caching_capacity.learning_rate_fps,
             toggle_sync_state=address_caching_capacity.toggle_sync_state,
             sync_off_duration=address_caching_capacity.sync_off_duration,
@@ -256,14 +261,14 @@ class Converter2889:
 
     def __gen_address_learning_rate(self):
         address_learning_rate = self.data.test_options.test_type_option_map.address_learning_rate
-        return self.module.AddressLearningRateConfiguration.construct(
-            port_role_handler=address_learning_rate.port_role_handler,
+        return dict(
+            port_role_handler=self.__gen_test_port_role(address_learning_rate.port_role_handler),
             rate_iteration_options=self.__gen_rate_iteration_options(address_learning_rate.rate_iteration_options),
-            address_sweep_options=self.module.NewRateSweepOptions.parse_obj(address_learning_rate.address_sweep_options.dict()),
+            address_sweep_options=address_learning_rate.address_sweep_options.dict(),
             learn_mac_base_address=address_learning_rate.learn_mac_base_address,
-            test_port_mac_mode=address_learning_rate.test_port_mac_mode,
-            learning_port_dmac_mode=address_learning_rate.learning_port_dmac_mode,
-            learning_sequence_port_dmac_mode=address_learning_rate.learning_sequence_port_dmac_mode,
+            test_port_mac_mode=address_learning_rate.test_port_mac_mode.value.lower(),
+            learning_port_dmac_mode=address_learning_rate.learning_port_dmac_mode.value.lower(),
+            learning_sequence_port_dmac_mode=address_learning_rate.learning_sequence_port_dmac_mode.value.lower(),
             learning_rate_fps=address_learning_rate.learning_rate_fps,
             toggle_sync_state=address_learning_rate.toggle_sync_state,
             sync_off_duration=address_learning_rate.sync_off_duration,
@@ -277,9 +282,9 @@ class Converter2889:
 
     def __gen_errored_frames_filtering(self):
         errored_frames_filtering = self.data.test_options.test_type_option_map.errored_frames_filtering
-        return self.module.ErroredFramesFilteringConfiguration.construct(
-            port_role_handler=errored_frames_filtering.port_role_handler,
-            rate_sweep_options=self.module.NewRateSweepOptions.parse_obj(errored_frames_filtering.rate_sweep_options.dict()),
+        return dict(
+            port_role_handler=self.__gen_test_port_role(errored_frames_filtering.port_role_handler),
+            rate_sweep_options=errored_frames_filtering.rate_sweep_options.dict(),
             oversize_test_enabled=errored_frames_filtering.oversize_test_enabled,
             max_frame_size=errored_frames_filtering.max_frame_size,
             oversize_span=errored_frames_filtering.oversize_span,
@@ -290,14 +295,14 @@ class Converter2889:
 
     def __gen_broadcast_forwarding(self):
         broadcast_forwarding = self.data.test_options.test_type_option_map.broadcast_forwarding
-        return self.module.BroadcastForwardingConfiguration.construct(
-            port_role_handler=broadcast_forwarding.port_role_handler,
+        return dict(
+            port_role_handler=self.__gen_test_port_role(broadcast_forwarding.port_role_handler),
             rate_iteration_options=self.__gen_rate_iteration_options(broadcast_forwarding.rate_iteration_options),
             **self.__gather_test_case_common_config(broadcast_forwarding),
         )
 
     def __gen_test_types_config(self):
-        return self.module.TestSuitesConfiguration.construct(
+        return dict(
             rate_test=self.__gen_rate_test(),
             congestion_control=self.__gen_congestion_control(),
             forward_pressure=self.__gen_forward_pressure(),
@@ -321,7 +326,7 @@ class Converter2889:
 
                 for field in segment_ref.protocol_fields:
                     converted_fields.append(
-                        self.module.SegmentField.construct(
+                        dict(
                             name=field.name,
                             value=segment_value[:field.bit_length],
                             bit_length=field.bit_length,
@@ -329,22 +334,22 @@ class Converter2889:
                     )
                     segment_value = segment_value[field.bit_length:]
 
-                segment = self.module.ProtocolSegment.construct(
-                    segment_type=self.module.SegmentType[hs.segment_type.name.lower()],
+                segment = dict(
+                    segment_type=hs.segment_type.name.lower(),
                     fields=converted_fields,
                     checksum_offset=segment_ref.checksum_offset,
                 )
                 header_segments.append(segment)
 
-            protocol_segments_profile[profile.item_id] = self.module.ProtocolSegmentProfileConfig.construct(header_segments=header_segments)
+            protocol_segments_profile[profile.item_id] = dict(header_segments=header_segments)
         return protocol_segments_profile
 
-    def gen(self) -> "TestParameters":
+    def gen(self) -> "Dict":
         port_identities = self.__gen_port_identity()
-        config = self.module.TestSuiteConfiguration2889.construct(
+        config = dict(
             ports_configuration=self.__gen_port_config(),
             protocol_segments=self.__gen_protocol_segments(),
             general_test_configuration=self.__gen_general_test_config(),
             test_suites_configuration=self.__gen_test_types_config(),
         )
-        return TestParameters(username="RFC-2889", config=config, port_identities=port_identities)
+        return dict(username="RFC-2889", config=config, port_identities=port_identities)

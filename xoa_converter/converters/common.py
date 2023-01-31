@@ -7,7 +7,6 @@ from typing import (
     Optional,
     Set,
     TYPE_CHECKING,
-    Union,
 )
 from pydantic import BaseModel
 from pydantic.fields import Field
@@ -35,8 +34,8 @@ class PortIdentity(BaseModel):
 
 class TestParameters(BaseModel):
     username: str
-    port_identities: Dict[str, PortIdentity]
-    config: BaseModel
+    port_identities: Dict[str, Dict]
+    config: Dict
 
     @property
     def get_testers_ids(self) -> Set[str]:

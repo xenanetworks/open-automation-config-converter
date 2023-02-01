@@ -174,7 +174,7 @@ class Converter2544:
         duration_unit = (
             test_type_conf.duration_time_unit.lower()
             if is_time_duration
-            else test_type_conf.duration_frame_unit.name.lower()
+            else test_type_conf.duration_frame_unit.name.lower().replace('field_', '')
         )
         return dict(
             duration_type=duration_type,
@@ -185,13 +185,13 @@ class Converter2544:
             repetition=test_type_conf.iterations,
         )
 
-    def __gen_common_option_back_to_back(
-        self,
-        test_type_conf: Union[
-            "LegacyThroughput", "LegacyLatency", "LegacyLoss", "LegacyBack2Back"
-        ],
-    ):
-        return dict(repetition=test_type_conf.iterations)
+    # def __gen_common_option_back_to_back(
+    #     self,
+    #     test_type_conf: Union[
+    #         "LegacyThroughput", "LegacyLatency", "LegacyLoss", "LegacyBack2Back"
+    #     ],
+    # ):
+    #     return dict(repetition=test_type_conf.iterations)
 
     def __gen_rate_iteration_options(
         self, rate_iteration_options: "LegacyRateIterationOptions"
@@ -245,7 +245,7 @@ class Converter2544:
     def __gen_back_to_back(self, back_to_back: "LegacyBack2Back"):
         return dict(
             enabled=back_to_back.enabled,
-            common_options=self.__gen_common_option_back_to_back(back_to_back),
+            common_options=self.__gen_common_option(back_to_back),
             rate_sweep_options=self.__gen_rate_sweep_option(
                 back_to_back.rate_sweep_options
             ),

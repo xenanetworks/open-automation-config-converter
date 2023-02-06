@@ -1,9 +1,14 @@
+import json
 from .converters import fabric
 from . import types
-from . import _generator
+from decimal import Decimal
 
 
-def converter(test_suite_type: types.TestSuiteType, source_config: types.JsonStr, target_schema: types.JsonStr) -> str:
+def converter(
+    test_suite_type: types.TestSuiteType,
+    source_config: types.JsonStr,
+    target_schema: types.JsonStr,
+) -> str:
     """Convert an Valkyrie test suite application's config file into XOA's test suite config.
 
     :param test_suite_type: Registered test suite type.
@@ -16,9 +21,5 @@ def converter(test_suite_type: types.TestSuiteType, source_config: types.JsonStr
     :rtype: str
     """
     converter_class = fabric.get_converter(test_suite_type)
-    target_module = _generator.gen_target_module(target_schema)
-    _model = converter_class(
-        source_config=source_config, 
-        target_module=target_module
-    ).gen()
-    return _model.json(indent=2)
+    _model = converter_class(source_config=source_config).gen()
+    return json.dumps(_model, indent=2)

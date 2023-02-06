@@ -270,7 +270,6 @@ class PortRef(BaseModel):
     port_index: int = Field(alias="PortIndex")
 
 
-
 class LegacyPortEntity(BaseModel):
     port_ref: PortRef = Field(alias="PortRef")
     port_group: PortGroup = Field(alias="PortGroup")

@@ -1,3 +1,4 @@
+
 from typing import Dict, List
 from pydantic import (
     BaseModel,
@@ -114,7 +115,6 @@ class LegacyHeaderSegments(BaseModel):
         else:
             return v
 
-
 class LegacyPayloadDefinition(BaseModel):
     payload_type: str = Field(alias="PayloadType")
     payload_pattern: str = Field(alias="PayloadPattern")
@@ -202,7 +202,7 @@ class LegacyThroughput(BaseModel):
     enabled: bool = Field(alias="Enabled")
     duration_type: enums.LegacyDurationType = Field(alias="DurationType")
     duration: float = Field(alias="Duration")
-    duration_time_unit: enums.LegacyDurationTimeUnit = Field(alias="DurationTimeUnit")
+    duration_time_unit: str = Field(alias="DurationTimeUnit")
     duration_frames: int = Field(alias="DurationFrames")
     duration_frame_unit: enums.LegacyDurationFrameUnit = Field(
         alias="DurationFrameUnit"
@@ -228,7 +228,7 @@ class LegacyLatency(BaseModel):
     enabled: bool = Field(alias="Enabled")
     duration_type: enums.LegacyDurationType = Field(alias="DurationType")
     duration: float = Field(alias="Duration")
-    duration_time_unit: enums.LegacyDurationTimeUnit = Field(alias="DurationTimeUnit")
+    duration_time_unit: str = Field(alias="DurationTimeUnit")
     duration_frames: int = Field(alias="DurationFrames")
     duration_frame_unit: enums.LegacyDurationFrameUnit = Field(
         alias="DurationFrameUnit"
@@ -252,7 +252,7 @@ class LegacyLoss(BaseModel):
     enabled: bool = Field(alias="Enabled")
     duration_type: enums.LegacyDurationType = Field(alias="DurationType")
     duration: float = Field(alias="Duration")
-    duration_time_unit: enums.LegacyDurationTimeUnit = Field(alias="DurationTimeUnit")
+    duration_time_unit: str = Field(alias="DurationTimeUnit")
     duration_frames: int = Field(alias="DurationFrames")
     duration_frame_unit: enums.LegacyDurationFrameUnit = Field(
         alias="DurationFrameUnit"
@@ -272,7 +272,7 @@ class LegacyBack2Back(BaseModel):
     enabled: bool = Field(alias="Enabled")
     duration_type: enums.LegacyDurationType = Field(alias="DurationType")
     duration: float = Field(alias="Duration")
-    duration_time_unit: enums.LegacyDurationTimeUnit = Field(alias="DurationTimeUnit")
+    duration_time_unit: str = Field(alias="DurationTimeUnit")
     duration_frames: int = Field(alias="DurationFrames")
     duration_frame_unit: enums.LegacyDurationFrameUnit = Field(
         alias="DurationFrameUnit"

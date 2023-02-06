@@ -14,6 +14,7 @@ class LegacyDurationType(Enum):
     TIME = "seconds"
     FRAMES = "frames"
 
+
     @property
     def is_time_duration(self):
         return self == LegacyDurationType.TIME
@@ -29,11 +30,6 @@ class LegacySearchType(Enum):
     BINARY_SEARCH = "binarysearch"
     FAST_BINARY_SEARCH = "fastbinarysearc"
 
-
-class LegacyDurationTimeUnit(Enum):
-    SECONDS = "Seconds"
-    MINUTES = "Minutes"
-    HOURS = "Hours"
 
 
 class LegacyDurationFrameUnit(Enum):

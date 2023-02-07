@@ -84,7 +84,7 @@ class Converter2889:
             peer_config_slot=self.id_map[entity.pair_peer_id][0]
             if entity.pair_peer_id and entity.pair_peer_id in self.id_map
             else "",
-            port_group=entity.port_group.value.lower(),
+            port_group=entity.port_group,
             port_speed_mode=entity.port_speed,
             ipv4_properties=self.__gen_ipv4_addr(entity),
             ipv6_properties=self.__gen_ipv6_addr(entity),
@@ -96,15 +96,15 @@ class Converter2889:
             speed_reduction_ppm=entity.adjust_ppm,
             pause_mode_enabled=entity.pause_mode_on,
             latency_offset_ms=entity.latency_offset,
-            fec_mode=entity.fec_mode.name.lower(),
+            fec_mode=entity.fec_mode,
             port_rate_cap_enabled=bool(entity.enable_port_rate_cap),
             port_rate_cap_value=entity.port_rate_cap_value,
-            port_rate_cap_profile=entity.port_rate_cap_profile.name.lower(),
-            port_rate_cap_unit=entity.port_rate_cap_unit.name.lower(),
+            port_rate_cap_profile=entity.port_rate_cap_profile,
+            port_rate_cap_unit=entity.port_rate_cap_unit,
             auto_neg_enabled=bool(entity.auto_neg_enabled),
             anlt_enabled=bool(entity.anlt_enabled),
             mdi_mdix_mode=entity.mdi_mdix_mode,
-            broadr_reach_mode=entity.brr_mode.value.lower(),
+            broadr_reach_mode=entity.brr_mode,
             profile_id=profile_id,
             item_id=entity.item_id,
         )
@@ -120,7 +120,7 @@ class Converter2889:
         packet_size_type = packet_size.packet_size_type
         fz = packet_size.mixed_length_config.frame_sizes
         return dict(
-            packet_size_type=packet_size_type.name.lower(),
+            packet_size_type=packet_size_type,
             custom_packet_sizes=packet_size.custom_packet_sizes,
             fixed_packet_start_size=packet_size.sw_packet_start_size,
             fixed_packet_end_size=packet_size.sw_packet_end_size,
@@ -133,13 +133,13 @@ class Converter2889:
 
     def __gen_rate_definition(self):
         return dict(
-            rate_type=self.data.test_options.rate_definition.rate_type.name.lower(),
+            rate_type=self.data.test_options.rate_definition.rate_type,
             rate_fraction=self.data.test_options.rate_definition.rate_fraction,
             rate_pps=self.data.test_options.rate_definition.rate_pps,
             rate_bps_l1=self.data.test_options.rate_definition.rate_bps_l1,
-            rate_bps_l1_unit=self.data.test_options.rate_definition.rate_bps_l1_unit.name.lower(),
+            rate_bps_l1_unit=self.data.test_options.rate_definition.rate_bps_l1_unit,
             rate_bps_l2=self.data.test_options.rate_definition.rate_bps_l2,
-            rate_bps_l2_unit=self.data.test_options.rate_definition.rate_bps_l2_unit.name.lower(),
+            rate_bps_l2_unit=self.data.test_options.rate_definition.rate_bps_l2_unit,
         )
 
     def __gen_general_test_config(self):
@@ -155,7 +155,7 @@ class Converter2889:
             use_port_sync_start=self.data.test_options.use_port_sync_start,
             port_stagger_steps=self.data.test_options.port_stagger_steps,
             use_micro_tpld_on_demand=self.data.test_options.flow_creation_options.use_micro_tpld_on_demand,
-            tid_allocation_scope=self.data.tid_allocation_scope.name.lower(),
+            tid_allocation_scope=self.data.tid_allocation_scope,
         )
 
     def __gen_rate_iteration_options(self, rate_iteration_options):
@@ -178,7 +178,7 @@ class Converter2889:
         return dict(
             enabled=test_case_config.enabled,
             duration=test_case_config.duration,
-            duration_time_unit=test_case_config.duration_time_unit.value.lower(),
+            duration_time_unit=test_case_config.duration_time_unit,
             iterations=test_case_config.iterations,
             item_id=test_case_config.item_id,
             label=test_case_config.label,
@@ -187,7 +187,7 @@ class Converter2889:
     def __gen_test_port_role(self, port_role_handler: LegacyPortRoleHandler):
         role_map = {}
         for k, v in port_role_handler.role_map.items():
-            v.role = v.role.value.lower()
+            v.role = v.role
             role_map[k] = v.dict()
         return {'role_map': role_map}
 
@@ -197,8 +197,8 @@ class Converter2889:
 
         for sub_test in rate_test_config.rate_sub_test_handler.rate_sub_tests:
             rate_sub_test = dict(
-                topology=sub_test.topology.value.lower(),
-                direction=sub_test.direction.name.lower(),
+                topology=sub_test.topology,
+                direction=sub_test.direction,
                 port_role_handler=self.__gen_test_port_role(sub_test.port_role_handler),
                 throughput_test_enabled=sub_test.throughput_test_enabled,
                 rate_iteration_options=self.__gen_rate_iteration_options(
@@ -246,9 +246,9 @@ class Converter2889:
             address_iteration_options=self.__gen_rate_iteration_options(address_caching_capacity.address_iteration_options),
             rate_sweep_options=self.__gen_rate_sweep_option(address_caching_capacity.rate_sweep_options),
             learn_mac_base_address=address_caching_capacity.learn_mac_base_address,
-            test_port_mac_mode=address_caching_capacity.test_port_mac_mode.value.lower(),
-            learning_port_dmac_mode=address_caching_capacity.learning_port_dmac_mode.value.lower(),
-            learning_sequence_port_dmac_mode=address_caching_capacity.learning_sequence_port_dmac_mode.value.lower(),
+            test_port_mac_mode=address_caching_capacity.test_port_mac_mode,
+            learning_port_dmac_mode=address_caching_capacity.learning_port_dmac_mode,
+            learning_sequence_port_dmac_mode=address_caching_capacity.learning_sequence_port_dmac_mode,
             learning_rate_fps=address_caching_capacity.learning_rate_fps,
             toggle_sync_state=address_caching_capacity.toggle_sync_state,
             sync_off_duration=address_caching_capacity.sync_off_duration,
@@ -266,9 +266,9 @@ class Converter2889:
             rate_iteration_options=self.__gen_rate_iteration_options(address_learning_rate.rate_iteration_options),
             address_sweep_options=address_learning_rate.address_sweep_options.dict(),
             learn_mac_base_address=address_learning_rate.learn_mac_base_address,
-            test_port_mac_mode=address_learning_rate.test_port_mac_mode.value.lower(),
-            learning_port_dmac_mode=address_learning_rate.learning_port_dmac_mode.value.lower(),
-            learning_sequence_port_dmac_mode=address_learning_rate.learning_sequence_port_dmac_mode.value.lower(),
+            test_port_mac_mode=address_learning_rate.test_port_mac_mode,
+            learning_port_dmac_mode=address_learning_rate.learning_port_dmac_mode,
+            learning_sequence_port_dmac_mode=address_learning_rate.learning_sequence_port_dmac_mode,
             learning_rate_fps=address_learning_rate.learning_rate_fps,
             toggle_sync_state=address_learning_rate.toggle_sync_state,
             sync_off_duration=address_learning_rate.sync_off_duration,
@@ -335,7 +335,7 @@ class Converter2889:
                     segment_value = segment_value[field.bit_length:]
 
                 segment = dict(
-                    segment_type=hs.segment_type.name.lower(),
+                    segment_type=hs.segment_type,
                     fields=converted_fields,
                     checksum_offset=segment_ref.checksum_offset,
                 )

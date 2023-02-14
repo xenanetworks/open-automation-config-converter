@@ -9,7 +9,7 @@ class ComplexEncoder(json.JSONEncoder):
         if isinstance(obj, Enum):
             return obj.name.upper()
         else:
-            return json.JSONEncoder.default(self, obj)
+            return super().default(obj)
 
 
 def converter(

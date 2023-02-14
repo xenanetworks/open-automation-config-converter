@@ -4,6 +4,7 @@ from typing import  List, Dict, Optional
 from pydantic import BaseModel, Field, validator
 from .const import (
     BRRModeStr,
+    LatencyMode,
     LearningPortDMacMode,
     LearningSequencePortDMacMode,
     LegacyDurationType,
@@ -231,7 +232,7 @@ class TestOptions(BaseModel):
     packet_sizes: PacketSizes = Field(alias="PacketSizes")
     rate_definition: LegacyRateDefinition = Field(alias="RateDefinition")
     flow_creation_options: FlowCreationOptions = Field(alias="FlowCreationOptions")
-    latency_mode: str = Field(alias="LatencyMode")
+    latency_mode: LatencyMode = Field(alias="LatencyMode")
     toggle_sync_state: bool = Field(alias="ToggleSyncState")
     sync_off_duration: int = Field(alias="SyncOffDuration")
     sync_on_duration: int = Field(alias="SyncOnDuration")

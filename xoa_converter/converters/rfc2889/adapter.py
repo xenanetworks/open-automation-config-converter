@@ -1,6 +1,6 @@
 import base64
 import hashlib
-from typing import Dict, TYPE_CHECKING
+from typing import Any, Dict, TYPE_CHECKING
 from .model import (
     LegacyPortRoleHandler,
     ValkyrieConfiguration2889 as old_model,
@@ -49,7 +49,7 @@ class Converter2889:
             count += 1
         return port_identity
 
-    def __gen_ipv4_addr(self, entity: "LegacyPortEntity"):
+    def __gen_ipv4_addr(self, entity: "LegacyPortEntity") -> Dict[str, Any]:
         return dict(
             address=entity.ip_v4_address,
             routing_prefix=entity.ip_v4_routing_prefix,
@@ -63,7 +63,7 @@ class Converter2889:
             else "0.0.0.0",
         )
 
-    def __gen_ipv6_addr(self, entity: "LegacyPortEntity"):
+    def __gen_ipv6_addr(self, entity: "LegacyPortEntity") -> Dict[str, Any]:
         return dict(
             address=entity.ip_v6_address,
             routing_prefix=entity.ip_v6_routing_prefix,
@@ -77,7 +77,7 @@ class Converter2889:
             else "::",
         )
 
-    def __gen_port_conf(self, entity: "LegacyPortEntity"):
+    def __gen_port_conf(self, entity: "LegacyPortEntity") -> Dict[str, Any]:
         profile_id = self.data.stream_profile_handler.profile_assignment_map.get(f"guid_{entity.item_id}")
         return dict(
             port_slot=self.id_map[entity.item_id][1],
@@ -109,13 +109,13 @@ class Converter2889:
             item_id=entity.item_id,
         )
 
-    def __gen_port_config(self) -> Dict:
+    def __gen_port_config(self) -> Dict[str, Any]:
         port_conf: Dict = {}
         for entity in self.data.port_handler.entity_list:
             port_conf[self.id_map[entity.item_id][0]] = self.__gen_port_conf(entity)
         return port_conf
 
-    def __gen_frame_size(self):
+    def __gen_frame_size(self) -> Dict[str, Any]:
         packet_size = self.data.test_options.packet_sizes
         packet_size_type = packet_size.packet_size_type
         fz = packet_size.mixed_length_config.frame_sizes
@@ -131,7 +131,7 @@ class Converter2889:
             mixed_length_config=LegacyFrameSizesOptions(**fz).dict(),
         )
 
-    def __gen_rate_definition(self):
+    def __gen_rate_definition(self) -> Dict[str, Any]:
         return dict(
             rate_type=self.data.test_options.rate_definition.rate_type,
             rate_fraction=self.data.test_options.rate_definition.rate_fraction,
@@ -142,7 +142,7 @@ class Converter2889:
             rate_bps_l2_unit=self.data.test_options.rate_definition.rate_bps_l2_unit,
         )
 
-    def __gen_general_test_config(self):
+    def __gen_general_test_config(self) -> Dict[str, Any]:
         return dict(
             frame_sizes=self.__gen_frame_size(),
             rate_definition=self.__gen_rate_definition(),
@@ -158,7 +158,7 @@ class Converter2889:
             tid_allocation_scope=self.data.tid_allocation_scope,
         )
 
-    def __gen_rate_iteration_options(self, rate_iteration_options):
+    def __gen_rate_iteration_options(self, rate_iteration_options) -> Dict[str, Any]:
         return dict(
             initial_value=rate_iteration_options.initial_value,
             minimum_value=rate_iteration_options.minimum_value,
@@ -167,14 +167,14 @@ class Converter2889:
             use_pass_threshold=rate_iteration_options.use_pass_threshold,
             pass_threshold=rate_iteration_options.pass_threshold,
         )
-    def __gen_rate_sweep_option(self, rate_sweep_options):
+    def __gen_rate_sweep_option(self, rate_sweep_options) -> Dict[str, Any]:
         return dict(
             start_value=rate_sweep_options.start_value,
             end_value=rate_sweep_options.end_value,
             step_value=rate_sweep_options.step_value,
         )
 
-    def __gather_test_case_common_config(self, test_case_config):
+    def __gather_test_case_common_config(self, test_case_config) -> Dict[str, Any]:
         return dict(
             enabled=test_case_config.enabled,
             duration=test_case_config.duration,
@@ -184,14 +184,14 @@ class Converter2889:
             label=test_case_config.label,
         )
 
-    def __gen_test_port_role(self, port_role_handler: LegacyPortRoleHandler):
+    def __gen_test_port_role(self, port_role_handler: LegacyPortRoleHandler) -> Dict[str, Any]:
         role_map = {}
         for k, v in port_role_handler.role_map.items():
             v.role = v.role
             role_map[k] = v.dict()
         return {'role_map': role_map}
 
-    def __gen_rate_test(self):
+    def __gen_rate_test(self) -> Dict[str, Any]:
         rate_test_config = self.data.test_options.test_type_option_map.rate_test
         all_rate_sub_tests = []
 
@@ -215,13 +215,13 @@ class Converter2889:
             **self.__gather_test_case_common_config(rate_test_config),
         )
 
-    def __gen_congestion_control(self):
+    def __gen_congestion_control(self) -> Dict[str, Any]:
         return dict(
             port_role_handler=self.__gen_test_port_role(self.data.test_options.test_type_option_map.congestion_control.port_role_handler),
             **self.__gather_test_case_common_config(self.data.test_options.test_type_option_map.congestion_control)
         )
 
-    def __gen_forward_pressure(self):
+    def __gen_forward_pressure(self) -> Dict[str, Any]:
         forward_pressure = self.data.test_options.test_type_option_map.forward_pressure
         return dict(
             port_role_handler=self.__gen_test_port_role(forward_pressure.port_role_handler),
@@ -230,7 +230,7 @@ class Converter2889:
             **self.__gather_test_case_common_config(forward_pressure)
         )
 
-    def __gen_max_forwarding_rate(self):
+    def __gen_max_forwarding_rate(self) -> Dict[str, Any]:
         max_forwarding_rate = self.data.test_options.test_type_option_map.max_forwarding_rate
         return dict(
             port_role_handler=self.__gen_test_port_role(max_forwarding_rate.port_role_handler),
@@ -239,7 +239,7 @@ class Converter2889:
             **self.__gather_test_case_common_config(max_forwarding_rate),
         )
 
-    def __gen_address_caching_capacity(self):
+    def __gen_address_caching_capacity(self) -> Dict[str, Any]:
         address_caching_capacity = self.data.test_options.test_type_option_map.address_caching_capacity
         return dict(
             port_role_handler=self.__gen_test_port_role(address_caching_capacity.port_role_handler),
@@ -259,7 +259,7 @@ class Converter2889:
             **self.__gather_test_case_common_config(address_caching_capacity),
         )
 
-    def __gen_address_learning_rate(self):
+    def __gen_address_learning_rate(self) -> Dict[str, Any]:
         address_learning_rate = self.data.test_options.test_type_option_map.address_learning_rate
         return dict(
             port_role_handler=self.__gen_test_port_role(address_learning_rate.port_role_handler),
@@ -280,7 +280,7 @@ class Converter2889:
             **self.__gather_test_case_common_config(address_learning_rate),
         )
 
-    def __gen_errored_frames_filtering(self):
+    def __gen_errored_frames_filtering(self) -> Dict[str, Any]:
         errored_frames_filtering = self.data.test_options.test_type_option_map.errored_frames_filtering
         return dict(
             port_role_handler=self.__gen_test_port_role(errored_frames_filtering.port_role_handler),
@@ -293,7 +293,7 @@ class Converter2889:
             **self.__gather_test_case_common_config(errored_frames_filtering),
         )
 
-    def __gen_broadcast_forwarding(self):
+    def __gen_broadcast_forwarding(self) -> Dict[str, Any]:
         broadcast_forwarding = self.data.test_options.test_type_option_map.broadcast_forwarding
         return dict(
             port_role_handler=self.__gen_test_port_role(broadcast_forwarding.port_role_handler),
@@ -301,7 +301,7 @@ class Converter2889:
             **self.__gather_test_case_common_config(broadcast_forwarding),
         )
 
-    def __gen_test_types_config(self):
+    def __gen_test_types_config(self) -> Dict[str, Any]:
         return dict(
             rate_test=self.__gen_rate_test(),
             congestion_control=self.__gen_congestion_control(),
@@ -313,7 +313,7 @@ class Converter2889:
             broadcast_forwarding=self.__gen_broadcast_forwarding(),
         )
 
-    def __gen_protocol_segments(self) -> Dict:
+    def __gen_protocol_segments(self) -> Dict[str, Any]:
         protocol_segments_profile = {}
 
         for profile in self.data.stream_profile_handler.entity_list:
@@ -344,7 +344,7 @@ class Converter2889:
             protocol_segments_profile[profile.item_id] = dict(header_segments=header_segments)
         return protocol_segments_profile
 
-    def gen(self) -> "Dict":
+    def gen(self) -> Dict[str, Any]:
         port_identities = self.__gen_port_identity()
         config = dict(
             ports_configuration=self.__gen_port_config(),

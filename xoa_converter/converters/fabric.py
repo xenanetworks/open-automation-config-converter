@@ -1,16 +1,13 @@
-from types import ModuleType
-from typing import Type, Protocol
+from typing import Any, Type, Protocol, Dict
 from xoa_converter import exceptions
 from xoa_converter import types
-from .common import TestParameters
 from .rfc2544.adapter import Converter2544
 from .rfc2889.adapter import Converter2889
-from loguru import logger
 
 
 class XoaConverter(Protocol):
-    def __init__(self, source_config: str, target_module: ModuleType) -> None: ...
-    def gen(self) -> "TestParameters": ...
+    def __init__(self, source_config: str) -> None: ...
+    def gen(self) -> Dict[str, Any]: ...
 
 
 def get_converter(test_suite_type: types.TestSuiteType) -> Type[XoaConverter]:

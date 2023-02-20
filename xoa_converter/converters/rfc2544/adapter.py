@@ -1,5 +1,6 @@
+from __future__ import annotations
 import hashlib
-from typing import Dict, Union, List, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING
 from .model import LegacyModel2544 as old_model
 from ..common import convert_protocol_segments
 
@@ -25,7 +26,7 @@ class Converter2544:
         self.id_map = {}
         self.data = old_model.parse_raw(source_config)
 
-    def __gen_frame_size(self):
+    def __gen_frame_size(self) -> dict:
         packet_size = self.data.test_options.packet_sizes
         packet_size_type = packet_size.packet_size_type
         fz = packet_size.mixed_length_config.frame_sizes
@@ -41,7 +42,7 @@ class Converter2544:
             mixed_sizes_weights=packet_size.mixed_sizes_weights,
         )
 
-    def __gen_multi_stream_config(self):
+    def __gen_multi_stream_config(self) -> dict:
         flow_option = self.data.test_options.flow_creation_options
         return dict(
             enable_multi_stream=flow_option.enable_multi_stream,
@@ -53,7 +54,7 @@ class Converter2544:
             ),
         )
 
-    def __gen_port_sync_config(self):
+    def __gen_port_sync_config(self) -> dict:
         test_options = self.data.test_options
         return dict(
             delay_after_sync_on_second=test_options.sync_on_duration,
@@ -61,12 +62,12 @@ class Converter2544:
             sync_off_duration_second=test_options.sync_off_duration,
         )
 
-    def __gen_topology_config(self):
+    def __gen_topology_config(self) -> dict:
         topology = self.data.test_options.topology_config.topology.lower()
         direction = self.data.test_options.topology_config.direction.name.lower()
         return dict(topology=topology, direction=direction)
 
-    def __gen_frame_size_config(self):
+    def __gen_frame_size_config(self) -> dict:
         frame_size = self.__gen_frame_size()
         flow_option = self.data.test_options.flow_creation_options
         payload = self.data.test_options.payload_definition
@@ -172,15 +173,18 @@ class Converter2544:
 
         is_time_duration = test_type_conf.duration_type.value == "seconds"
         duration_unit = (
-            test_type_conf.duration_time_unit.lower()
+            test_type_conf.duration_time_unit.name.lower()
             if is_time_duration
-            else test_type_conf.duration_frame_unit.name.lower().replace('field_', '')
+            else test_type_conf.duration_frame_unit.name.lower().replace("field_", "")
+        )
+        duration = (
+            test_type_conf.duration
+            if is_time_duration
+            else test_type_conf.duration_frames
         )
         return dict(
             duration_type=duration_type,
-            duration=test_type_conf.duration
-            if is_time_duration
-            else test_type_conf.duration_frames,
+            duration=duration,
             duration_unit=duration_unit,
             repetition=test_type_conf.iterations,
         )
@@ -205,7 +209,7 @@ class Converter2544:
             value_resolution_pct=rate_iteration_options.value_resolution,
         )
 
-    def __gen_throughput(self, throughput: "LegacyThroughput"):
+    def __gen_throughput(self, throughput: "LegacyThroughput") -> dict:
         rate_iteration_options = throughput.rate_iteration_options
         return dict(
             enabled=throughput.enabled,
@@ -220,7 +224,7 @@ class Converter2544:
             in throughput.report_property_options,
         )
 
-    def __gen_latency(self, latency: "LegacyLatency"):
+    def __gen_latency(self, latency: "LegacyLatency") -> dict:
         return dict(
             enabled=latency.enabled,
             common_options=self.__gen_common_option(latency),
@@ -254,7 +258,7 @@ class Converter2544:
             ),
         )
 
-    def __gen_test_type_config(self):
+    def __gen_test_type_config(self) -> dict:
         test_type_option_map = self.data.test_options.test_type_option_map
         return dict(
             throughput_test=self.__gen_throughput(test_type_option_map.throughput),
@@ -263,7 +267,7 @@ class Converter2544:
             back_to_back_test=self.__gen_back_to_back(test_type_option_map.back2_back),
         )
 
-    def __gen_chassis_id_map(self) -> Dict[str, str]:
+    def __gen_chassis_id_map(self) -> dict[str, str]:
         chassis_id_map = {}
         for chassis_info in self.data.chassis_manager.chassis_list:
             chassis_id = hashlib.md5(
@@ -272,7 +276,7 @@ class Converter2544:
             chassis_id_map[chassis_info.chassis_id] = chassis_id
         return chassis_id_map
 
-    def __gen_port_identity(self) -> List[Dict]:
+    def __gen_port_identity(self) -> list[dict]:
         chassis_id_map = self.__gen_chassis_id_map()
         port_identity = []
         for count, p_info in enumerate(self.data.port_handler.entity_list):
@@ -352,10 +356,10 @@ class Converter2544:
             protocol_segment_profile_id=profile_id,
         )
 
-    def __generate_port_config(self, protocol_names: Dict) -> Dict:
-        ip_version: List = []
-        profile_ids: List = []
-        port_conf: List = []
+    def __generate_port_config(self, protocol_names: dict) -> list[dict]:
+        ip_version: list = []
+        profile_ids: list = []
+        port_conf: list = []
         for entity in self.data.port_handler.entity_list:
             profile_id = self.data.stream_profile_handler.profile_assignment_map.get(
                 f"guid_{entity.item_id}"
@@ -382,7 +386,7 @@ class Converter2544:
             port_conf.append(self.__gen_port_conf(ip_v, profile_id, entity))
         return port_conf
 
-    def gen(self) -> Dict:
+    def gen(self) -> dict:
         # self.__gen_port_identity() also updates self.id_map, need to be called first
         port_identities = self.__gen_port_identity()
         protocol_segments = convert_protocol_segments(self.data.stream_profile_handler)

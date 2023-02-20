@@ -44,7 +44,7 @@ def get_short_version(rel_path):
 # -- Project information -----------------------------------------------------
 
 project = u'Xena OpenAutomation Test Configuration Converter'
-copyright = u'2022, Xena Networks'
+copyright = u'2023, Xena Networks'
 author = u'Xena Networks'
 title = u'Xena OpenAutomation Test Configuration Converter Guide'
 
@@ -132,6 +132,8 @@ html_theme_options = {
     "repository_url": "https://github.com/xenanetworks/open-automation-config-converter",
     "use_repository_button": True,
     "home_page_in_toc": True,
+    "show_toc_level": 1,
+    "show_navbar_depth": 1,
 }
 
 html_split_index = True

@@ -30,6 +30,12 @@ class LegacySearchType(Enum):
     FAST_BINARY_SEARCH = "fastbinarysearc"
 
 
+class LegacyDurationTimeUnit(Enum):
+    SECONDS = "Seconds"
+    MINUTES = "Minutes"
+    HOURS = "Hours"
+
+
 class LegacyDurationFrameUnit(Enum):
     FRAMES = "frames"
     FIELD_10E3_FRAMES = "kframes"

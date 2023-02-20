@@ -13,7 +13,9 @@ from pydantic.fields import Field
 from operator import attrgetter
 
 if TYPE_CHECKING:
-    from xoa_converter.converters.rfc2544.model import LegacyStreamProfileHandler
+    from xoa_converter.converters.rfc2544.model import (
+        LegacyStreamProfileHandler as LegacyStreamProfile2544,
+    )
     from types import ModuleType
 
 
@@ -73,7 +75,7 @@ def load_segment_refs_json(segment_type_value: str) -> SegmentRef:
 
 
 def convert_protocol_segments(
-    stream_profile_handler: "LegacyStreamProfileHandler",
+    stream_profile_handler: "LegacyStreamProfile2544",
 ) -> List:
     protocol_segments_profile = []
 

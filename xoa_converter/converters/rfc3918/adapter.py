@@ -1,7 +1,7 @@
 from __future__ import annotations
 import base64
 import hashlib
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 from .const_conv import (
     convert_protocol_option,
     convert_multicast_role,
@@ -67,22 +67,25 @@ class Converter3918:
         return protocol_segments_profile
 
     def __gen_port_identity(
-        self, chassis_id_map: dict[str, dict[str, Any]]
-    ) -> list[dict]:
-        port_identities = []
-        for count, p_info in enumerate(
-            self.data.legacy_port_handler.legacy_entity_list
-        ):
-            lpr = p_info.legacy_port_ref
-            lci = chassis_id_map[lpr.legacy_chassis_id]
-            port_identity = dict(
-                tester_id=lci["id"],
-                module_index=lpr.legacy_module_index,
-                port_index=lpr.legacy_port_index,
-            )
-            port_identities.append(port_identity)
+        self, chassis_id_map: Dict[str, Dict[str, Any]]
+    ) -> Dict[str, Dict]:
 
-        return port_identities
+        port_identity = {
+            f"p{count}": dict(
+                tester_id=chassis_id_map[p_info.legacy_port_ref.legacy_chassis_id][
+                    "id"
+                ],
+                tester_index=chassis_id_map[p_info.legacy_port_ref.legacy_chassis_id][
+                    "index"
+                ],
+                module_index=p_info.legacy_port_ref.legacy_module_index,
+                port_index=p_info.legacy_port_ref.legacy_port_index,
+            )
+            for count, p_info in enumerate(
+                self.data.legacy_port_handler.legacy_entity_list
+            )
+        }
+        return port_identity
 
     def __gen_chassis_id_map(self) -> dict[str, dict[str, Any]]:
         result = {}
@@ -575,14 +578,15 @@ class Converter3918:
         tester_id_map = self.__gen_chassis_id_map()
         id_map = self.__gen_port_id_map(tester_id_map)
         segments = self.__gen_profile()
+        config = dict(
+            mc_definition=self.__gen_mc_definition(segments),
+            protocol_segments=segments,
+            ports_configuration=self.__gen_port_config(id_map, segments),
+            test_configuration=self.__gen_test_config(),
+            test_types_configuration=self.__gen_test_type_config(),
+        )
         return dict(
             username="3918",
+            config=config,
             port_identities=self.__gen_port_identity(tester_id_map),
-            config=dict(
-                mc_definition=self.__gen_mc_definition(segments),
-                protocol_segments=segments,
-                ports_configuration=self.__gen_port_config(id_map, segments),
-                test_configuration=self.__gen_test_config(),
-                test_types_configuration=self.__gen_test_type_config(),
-            ),
         )

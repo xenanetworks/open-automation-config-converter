@@ -218,7 +218,7 @@ class Converter2544:
                 rate_iteration_options
             ),
             use_pass_criteria=rate_iteration_options.use_pass_threshold,
-            pass_threshold_throughput_pct=rate_iteration_options.pass_threshold,
+            pass_criteria_throughput_pct=rate_iteration_options.pass_threshold,
             acceptable_loss_pct=rate_iteration_options.acceptable_loss,
             collect_latency_jitter="LatencyCounters"
             in throughput.report_property_options,

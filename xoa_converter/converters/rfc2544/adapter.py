@@ -249,7 +249,8 @@ class Converter2544:
     def __gen_back_to_back(self, back_to_back: "LegacyBack2Back"):
         return dict(
             burst_size_iteration_options=dict(
-                burst_resolution=back_to_back.burst_resolution
+                burst_resolution=back_to_back.burst_resolution,
+                maximum_burst=back_to_back.duration_frames * back_to_back.duration_frame_unit.scale,
             ),
             common_options=self.__gen_common_option(back_to_back),
             enabled=back_to_back.enabled,

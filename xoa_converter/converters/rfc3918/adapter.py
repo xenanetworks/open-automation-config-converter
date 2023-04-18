@@ -40,8 +40,8 @@ class Converter3918:
                 bytess = bytearray(base64.b64decode(hs.legacy_segment_value))
                 lsv = [hex(int(i)).replace("0x", "").zfill(2) for i in bytess]
                 dic = dict(
-                    type=convert_protocol_option(hs.legacy_segment_type),
                     segment_value="".join(lsv),
+                    type=convert_protocol_option(hs.legacy_segment_type),
                 )
                 header_segments.append(dic)
 
@@ -58,11 +58,11 @@ class Converter3918:
 
                 protocol_segments_profile[profile.legacy_item_id] = dict(
                     header_segments=header_segments,
-                    payload_type=convert_payload_type(lpd.legacy_payload_type),
                     payload_pattern=payload_pattern,
-                    rate_type=rate_type,
+                    payload_type=convert_payload_type(lpd.legacy_payload_type),
                     rate_fraction=rate_fraction,
                     rate_pps=cfg.legacy_rate_pps,
+                    rate_type=rate_type,
                 )
         return protocol_segments_profile
 
@@ -76,9 +76,9 @@ class Converter3918:
             lpr = p_info.legacy_port_ref
             lci = chassis_id_map[lpr.legacy_chassis_id]
             port_identity = dict(
-                tester_id=lci["id"],
-                module_index=lpr.legacy_module_index,
                 port_index=lpr.legacy_port_index,
+                module_index=lpr.legacy_module_index,
+                tester_id=lci["id"],
             )
             port_identities.append(port_identity)
 
@@ -127,11 +127,11 @@ class Converter3918:
         )
         return dict(
             address=(entity.legacy_ip_v4_address),
-            routing_prefix=entity.legacy_ip_v4_routing_prefix,
             gateway=gateway,
             public_address=public_address,
             public_routing_prefix=entity.legacy_public_ip_routing_prefix,
             remote_loop_address=remote_loop_address,
+            routing_prefix=entity.legacy_ip_v4_routing_prefix,
         )
 
     def __gen_ipv6_addr(self, port_entity: "LegacyPortEntity") -> dict:
@@ -153,11 +153,11 @@ class Converter3918:
         public_routing_prefix = port_entity.legacy_public_ip_routing_prefix_v6
         return dict(
             address=(port_entity.legacy_ip_v6_address),
-            routing_prefix=port_entity.legacy_ip_v6_routing_prefix,
             gateway=ipv6_gateway,
             public_address=public_address,
             public_routing_prefix=public_routing_prefix,
             remote_loop_address=remote_loop_address,
+            routing_prefix=port_entity.legacy_ip_v6_routing_prefix,
         )
 
     def __gen_port_config(
@@ -190,30 +190,30 @@ class Converter3918:
             unit = convert_port_rate_cap_unit(entity.legacy_port_rate_cap_unit)
 
             value = dict(
-                port_slot=port_id_map[entity.legacy_item_id]["identity"],
-                port_config_slot=port_id_map[entity.legacy_item_id]["config"],
-                port_speed_mode=entity.legacy_port_speed,
+                anlt_enabled=bool(entity.legacy_anlt_enabled),
+                auto_neg_enabled=bool(entity.legacy_auto_neg_enabled),
+                broadr_reach_mode=brr_mode,
+                fec_mode=entity.legacy_enable_fec,
+                inter_frame_gap=entity.legacy_inter_frame_gap,
                 ipv4_properties=self.__gen_ipv4_addr(entity),
                 ipv6_properties=self.__gen_ipv6_addr(entity),
                 ip_gateway_mac_address=MacAddress.from_bytes(ligma),
-                reply_arp_requests=bool(entity.legacy_reply_arp_requests),
-                reply_ping_requests=bool(entity.legacy_reply_ping_requests),
-                remote_loop_mac_address=MacAddress.from_bytes(lrlma),
-                inter_frame_gap=entity.legacy_inter_frame_gap,
-                speed_reduction_ppm=entity.legacy_adjust_ppm,
-                pause_mode_enabled=entity.legacy_pause_mode_on,
                 latency_offset_ms=entity.legacy_latency_offset,
-                fec_mode=entity.legacy_enable_fec,
+                mdi_mdix_mode=mdi_mdix_mode,
+                multicast_role=multicast_role,
+                pause_mode_enabled=entity.legacy_pause_mode_on,
+                port_slot=port_id_map[entity.legacy_item_id]["identity"],
+                port_config_slot=port_id_map[entity.legacy_item_id]["config"],
                 port_rate_cap_enabled=bool(entity.legacy_enable_port_rate_cap),
-                port_rate_cap_value=entity.legacy_port_rate_cap_value,
                 port_rate_cap_profile=port_rate_cap_profile,
                 port_rate_cap_unit=unit,
-                auto_neg_enabled=bool(entity.legacy_auto_neg_enabled),
-                anlt_enabled=bool(entity.legacy_anlt_enabled),
-                mdi_mdix_mode=mdi_mdix_mode,
-                broadr_reach_mode=brr_mode,
+                port_rate_cap_value=entity.legacy_port_rate_cap_value,
+                port_speed_mode=entity.legacy_port_speed,
                 profile=profile,
-                multicast_role=multicast_role,
+                remote_loop_mac_address=MacAddress.from_bytes(lrlma),
+                reply_arp_requests=bool(entity.legacy_reply_arp_requests),
+                reply_ping_requests=bool(entity.legacy_reply_ping_requests),
+                speed_reduction_ppm=entity.legacy_adjust_ppm,
             )
             result[key] = value
         return result
@@ -230,20 +230,20 @@ class Converter3918:
         lpst = packet_size.legacy_packet_size_type
         packet_size_type = convert_packet_size_type(lpst)
         return dict(
-            packet_size_type=packet_size_type,
             custom_packet_sizes=packet_size.legacy_custom_packet_sizes,
-            fixed_packet_start_size=packet_size.legacy_sw_packet_start_size,
             fixed_packet_end_size=packet_size.legacy_sw_packet_end_size,
+            fixed_packet_start_size=packet_size.legacy_sw_packet_start_size,
             fixed_packet_step_size=packet_size.legacy_sw_packet_step_size,
-            varying_packet_min_size=packet_size.legacy_hw_packet_min_size,
-            varying_packet_max_size=packet_size.legacy_hw_packet_max_size,
-            mixed_sizes_weights=mixed_sizes_weights,
             mixed_length_config=dict(
                 field_0=fz.get("0", 56),
                 field_1=fz.get("1", 60),
                 field_14=fz.get("14", 9216),
                 field_15=fz.get("15", 16360),
             ),
+            mixed_sizes_weights=mixed_sizes_weights,
+            packet_size_type=packet_size_type,
+            varying_packet_max_size=packet_size.legacy_hw_packet_max_size,
+            varying_packet_min_size=packet_size.legacy_hw_packet_min_size,
         )
 
     def __gen_test_config(self):
@@ -275,23 +275,23 @@ class Converter3918:
         ltas = self.data.legacy_tid_allocation_scope
         tid_allocation_scope = convert_tid_allocation_scope(ltas)
         return dict(
-            tid_offset=test_options.legacy_tid_offset,
-            flow_creation_type=flow_creation_type,
-            mac_base_address=mac_base_address,
-            use_gateway_mac_as_dmac=flow_option.legacy_use_gateway_mac_as_dmac,
             enable_multi_stream=flow_option.legacy_enable_multi_stream,
-            per_port_stream_count=flow_option.legacy_per_port_stream_count,
-            multi_stream_address_offset=maddress_offset,
-            multi_stream_address_increment=maddress_increment,
-            multi_stream_mac_base_address=multi_stream_mac_base_address,
-            use_micro_tpld_on_demand=use_micro_tpld_on_demand,
-            latency_mode=latency_mode,
-            latency_display_unit=latency_display_unit,
+            flow_creation_type=flow_creation_type,
+            frame_sizes=self.__gen_frame_size(),
+            mac_base_address=mac_base_address,
             jitter_display_unit=jitter_display_unit,
-            toggle_sync_state=test_options.legacy_toggle_sync_state,
+            latency_display_unit=latency_display_unit,
+            latency_mode=latency_mode,
+            multi_stream_address_increment=maddress_increment,
+            multi_stream_address_offset=maddress_offset,
+            multi_stream_mac_base_address=multi_stream_mac_base_address,
+            per_port_stream_count=flow_option.legacy_per_port_stream_count,
             sync_off_duration=test_options.legacy_sync_off_duration,
             tid_allocation_scope=tid_allocation_scope,
-            frame_sizes=self.__gen_frame_size(),
+            tid_offset=test_options.legacy_tid_offset,
+            toggle_sync_state=test_options.legacy_toggle_sync_state,
+            use_gateway_mac_as_dmac=flow_option.legacy_use_gateway_mac_as_dmac,
+            use_micro_tpld_on_demand=use_micro_tpld_on_demand,
         )
 
     def __gen_group_join_leave_delay(self) -> Optional[dict]:
@@ -299,16 +299,16 @@ class Converter3918:
         gjld = t_options.legacy_group_join_leave_delay
         if gjld.legacy_enabled:
             return dict(
-                iterations=gjld.legacy_iterations,
                 duration=gjld.legacy_duration,
-                traffic_to_join_delay=gjld.legacy_traffic_to_join_delay,
+                iterations=gjld.legacy_iterations,
                 join_to_traffic_delay=gjld.legacy_join_to_traffic_delay,
                 leave_to_stop_delay=gjld.legacy_leave_to_stop_delay,
                 rate_options=dict(
-                    start_value=gjld.legacy_rate_options.legacy_start_value,
                     end_value=gjld.legacy_rate_options.legacy_end_value,
+                    start_value=gjld.legacy_rate_options.legacy_start_value,
                     step_value=gjld.legacy_rate_options.legacy_step_value,
                 ),
+                traffic_to_join_delay=gjld.legacy_traffic_to_join_delay,
             )
         return None
 
@@ -317,19 +317,19 @@ class Converter3918:
         mgc = t_options.legacy_multicast_group_capacity
         if mgc.legacy_enabled:
             return dict(
-                group_count_start=mgc.legacy_group_count_start,
-                group_count_end=mgc.legacy_group_count_end,
-                group_count_step=mgc.legacy_group_count_step,
-                rate_options=dict(
-                    start_value=mgc.legacy_rate_options.legacy_start_value,
-                    end_value=mgc.legacy_rate_options.legacy_end_value,
-                    step_value=mgc.legacy_rate_options.legacy_step_value,
-                ),
-                iterations=mgc.legacy_iterations,
                 duration=mgc.legacy_duration,
-                traffic_to_join_delay=mgc.legacy_traffic_to_join_delay,
+                iterations=mgc.legacy_iterations,
+                group_count_end=mgc.legacy_group_count_end,
+                group_count_start=mgc.legacy_group_count_start,
+                group_count_step=mgc.legacy_group_count_step,
                 join_to_traffic_delay=mgc.legacy_join_to_traffic_delay,
                 leave_to_stop_delay=mgc.legacy_leave_to_stop_delay,
+                rate_options=dict(
+                    end_value=mgc.legacy_rate_options.legacy_end_value,
+                    start_value=mgc.legacy_rate_options.legacy_start_value,
+                    step_value=mgc.legacy_rate_options.legacy_step_value,
+                ),
+                traffic_to_join_delay=mgc.legacy_traffic_to_join_delay,
             )
         return None
 
@@ -340,26 +340,26 @@ class Converter3918:
         lgc = at.legacy_group_count_def
         if at.legacy_enabled:
             return dict(
-                rate_options=dict(
-                    initial_value=lro.legacy_initial_value,
-                    minimum_value=lro.legacy_minimum_value,
-                    maximum_value=lro.legacy_maximum_value,
-                    value_resolution=lro.legacy_value_resolution,
-                    use_pass_threshold=lro.legacy_use_pass_threshold,
-                    pass_threshold=lro.legacy_pass_threshold,
-                ),
+                duration=at.legacy_duration,
                 group_count_def=dict(
+                    group_count_end=lgc.legacy_group_count_end,
+                    group_count_list=lgc.legacy_group_count_list,
                     group_count_sel=lgc.legacy_group_count_sel,
                     group_count_start=lgc.legacy_group_count_start,
-                    group_count_end=lgc.legacy_group_count_end,
                     group_count_step=lgc.legacy_group_count_step,
-                    group_count_list=lgc.legacy_group_count_list,
                 ),
                 iterations=at.legacy_iterations,
-                duration=at.legacy_duration,
-                traffic_to_join_delay=at.legacy_traffic_to_join_delay,
                 join_to_traffic_delay=at.legacy_join_to_traffic_delay,
                 leave_to_stop_delay=at.legacy_leave_to_stop_delay,
+                rate_options=dict(
+                    initial_value=lro.legacy_initial_value,
+                    maximum_value=lro.legacy_maximum_value,
+                    minimum_value=lro.legacy_minimum_value,
+                    pass_threshold=lro.legacy_pass_threshold,
+                    use_pass_threshold=lro.legacy_use_pass_threshold,
+                    value_resolution=lro.legacy_value_resolution,
+                ),
+                traffic_to_join_delay=at.legacy_traffic_to_join_delay,
             )
         return None
 
@@ -368,20 +368,20 @@ class Converter3918:
         sgt = t_options.legacy_scaled_group_throughput
         if sgt.legacy_enabled:
             return dict(
-                group_count_start=sgt.legacy_group_count_start,
-                group_count_end=sgt.legacy_group_count_end,
-                group_count_step=sgt.legacy_group_count_step,
-                use_max_capacity_result=sgt.legacy_use_max_capacity_result,
-                rate_options=dict(
-                    start_value=sgt.legacy_rate_options.legacy_start_value,
-                    end_value=sgt.legacy_rate_options.legacy_end_value,
-                    step_value=sgt.legacy_rate_options.legacy_step_value,
-                ),
-                iterations=sgt.legacy_iterations,
                 duration=sgt.legacy_duration,
-                traffic_to_join_delay=sgt.legacy_traffic_to_join_delay,
+                group_count_end=sgt.legacy_group_count_end,
+                group_count_start=sgt.legacy_group_count_start,
+                group_count_step=sgt.legacy_group_count_step,
+                iterations=sgt.legacy_iterations,
                 join_to_traffic_delay=sgt.legacy_join_to_traffic_delay,
                 leave_to_stop_delay=sgt.legacy_leave_to_stop_delay,
+                rate_options=dict(
+                    end_value=sgt.legacy_rate_options.legacy_end_value,
+                    start_value=sgt.legacy_rate_options.legacy_start_value,
+                    step_value=sgt.legacy_rate_options.legacy_step_value,
+                ),
+                traffic_to_join_delay=sgt.legacy_traffic_to_join_delay,
+                use_max_capacity_result=sgt.legacy_use_max_capacity_result,
             )
         return None
 
@@ -392,27 +392,27 @@ class Converter3918:
         lgc = mct.legacy_group_count_def
         if mct.legacy_enabled:
             return dict(
-                rate_options=dict(
-                    initial_value=lro.legacy_initial_value,
-                    minimum_value=lro.legacy_minimum_value,
-                    maximum_value=lro.legacy_maximum_value,
-                    value_resolution=lro.legacy_value_resolution,
-                    use_pass_threshold=lro.legacy_use_pass_threshold,
-                    pass_threshold=lro.legacy_pass_threshold,
-                ),
-                uc_traffic_load_ratio=mct.legacy_uc_traffic_load_ratio,
-                group_count_def=dict(
-                    group_count_sel=lgc.legacy_group_count_sel,
-                    group_count_start=lgc.legacy_group_count_start,
-                    group_count_end=lgc.legacy_group_count_end,
-                    group_count_step=lgc.legacy_group_count_step,
-                    group_count_list=lgc.legacy_group_count_list,
-                ),
-                iterations=mct.legacy_iterations,
                 duration=mct.legacy_duration,
-                traffic_to_join_delay=mct.legacy_traffic_to_join_delay,
+                iterations=mct.legacy_iterations,
                 join_to_traffic_delay=mct.legacy_join_to_traffic_delay,
                 leave_to_stop_delay=mct.legacy_leave_to_stop_delay,
+                group_count_def=dict(
+                    group_count_end=lgc.legacy_group_count_end,
+                    group_count_list=lgc.legacy_group_count_list,
+                    group_count_start=lgc.legacy_group_count_start,
+                    group_count_step=lgc.legacy_group_count_step,
+                    group_count_sel=lgc.legacy_group_count_sel,
+                ),
+                rate_options=dict(
+                    initial_value=lro.legacy_initial_value,
+                    maximum_value=lro.legacy_maximum_value,
+                    minimum_value=lro.legacy_minimum_value,
+                    pass_threshold=lro.legacy_pass_threshold,
+                    value_resolution=lro.legacy_value_resolution,
+                    use_pass_threshold=lro.legacy_use_pass_threshold,
+                ),
+                traffic_to_join_delay=mct.legacy_traffic_to_join_delay,
+                uc_traffic_load_ratio=mct.legacy_uc_traffic_load_ratio,
             )
         return None
 
@@ -422,23 +422,23 @@ class Converter3918:
         lgc = ltc.legacy_group_count_def
         if ltc.legacy_enabled:
             return dict(
-                rate_options=dict(
-                    start_value=ltc.legacy_rate_options.legacy_start_value,
-                    end_value=ltc.legacy_rate_options.legacy_end_value,
-                    step_value=ltc.legacy_rate_options.legacy_step_value,
-                ),
+                duration=ltc.legacy_duration,
                 group_count_def=dict(
+                    group_count_end=lgc.legacy_group_count_end,
+                    group_count_list=lgc.legacy_group_count_list,
                     group_count_sel=lgc.legacy_group_count_sel,
                     group_count_start=lgc.legacy_group_count_start,
-                    group_count_end=lgc.legacy_group_count_end,
                     group_count_step=lgc.legacy_group_count_step,
-                    group_count_list=lgc.legacy_group_count_list,
                 ),
                 iterations=ltc.legacy_iterations,
-                duration=ltc.legacy_duration,
-                traffic_to_join_delay=ltc.legacy_traffic_to_join_delay,
                 join_to_traffic_delay=ltc.legacy_join_to_traffic_delay,
                 leave_to_stop_delay=ltc.legacy_leave_to_stop_delay,
+                rate_options=dict(
+                    end_value=ltc.legacy_rate_options.legacy_end_value,
+                    start_value=ltc.legacy_rate_options.legacy_start_value,
+                    step_value=ltc.legacy_rate_options.legacy_step_value,
+                ),
+                traffic_to_join_delay=ltc.legacy_traffic_to_join_delay,
             )
         return None
 
@@ -447,17 +447,17 @@ class Converter3918:
         bjd = t_options.legacy_burdened_join_delay
         if bjd.legacy_enabled:
             return dict(
+                duration=bjd.legacy_duration,
+                iterations=bjd.legacy_iterations,
+                join_to_traffic_delay=bjd.legacy_join_to_traffic_delay,
+                leave_to_stop_delay=bjd.legacy_leave_to_stop_delay,
                 rate_options=dict(
                     start_value=bjd.legacy_rate_options.legacy_start_value,
                     end_value=bjd.legacy_rate_options.legacy_end_value,
                     step_value=bjd.legacy_rate_options.legacy_step_value,
                 ),
-                uc_traffic_load_ratio=bjd.legacy_uc_traffic_load_ratio,
-                iterations=bjd.legacy_iterations,
-                duration=bjd.legacy_duration,
                 traffic_to_join_delay=bjd.legacy_traffic_to_join_delay,
-                join_to_traffic_delay=bjd.legacy_join_to_traffic_delay,
-                leave_to_stop_delay=bjd.legacy_leave_to_stop_delay,
+                uc_traffic_load_ratio=bjd.legacy_uc_traffic_load_ratio,
             )
         return None
 
@@ -467,37 +467,37 @@ class Converter3918:
         lgc = bdl.legacy_group_count_def
         if bdl.legacy_enabled:
             return dict(
-                rate_options=dict(
-                    start_value=bdl.legacy_rate_options.legacy_start_value,
-                    end_value=bdl.legacy_rate_options.legacy_end_value,
-                    step_value=bdl.legacy_rate_options.legacy_step_value,
-                ),
+                duration=bdl.legacy_duration,
                 group_count_def=dict(
+                    group_count_end=lgc.legacy_group_count_end,
+                    group_count_list=lgc.legacy_group_count_list,
                     group_count_sel=lgc.legacy_group_count_sel,
                     group_count_start=lgc.legacy_group_count_start,
-                    group_count_end=lgc.legacy_group_count_end,
                     group_count_step=lgc.legacy_group_count_step,
-                    group_count_list=lgc.legacy_group_count_list,
                 ),
-                uc_traffic_load_ratio=bdl.legacy_uc_traffic_load_ratio,
                 iterations=bdl.legacy_iterations,
-                duration=bdl.legacy_duration,
-                traffic_to_join_delay=bdl.legacy_traffic_to_join_delay,
                 join_to_traffic_delay=bdl.legacy_join_to_traffic_delay,
                 leave_to_stop_delay=bdl.legacy_leave_to_stop_delay,
+                rate_options=dict(
+                    end_value=bdl.legacy_rate_options.legacy_end_value,
+                    start_value=bdl.legacy_rate_options.legacy_start_value,
+                    step_value=bdl.legacy_rate_options.legacy_step_value,
+                ),
+                traffic_to_join_delay=bdl.legacy_traffic_to_join_delay,
+                uc_traffic_load_ratio=bdl.legacy_uc_traffic_load_ratio,
             )
         return None
 
     def __gen_test_type_config(self) -> dict:
         return dict(
-            group_join_leave_delay=self.__gen_group_join_leave_delay(),
-            multicast_group_capacity=self.__gen_multicast_group_capacity(),
             aggregated_multicast_throughput=self.__gen_aggregated_throughput(),
-            scaled_group_forwarding_matrix=self.__gen_scale_group_throughput(),
-            mixed_class_throughput=self.__gen_mixed_class_throughput(),
-            multicast_latency=self.__gen_multicast_latency(),
-            burdened_group_join_delay=self.__gen_burdened_group_join_delay(),
             burdened_multicast_latency=self.__gen_burdened_multicast_latency(),
+            burdened_group_join_delay=self.__gen_burdened_group_join_delay(),
+            group_join_leave_delay=self.__gen_group_join_leave_delay(),
+            mixed_class_throughput=self.__gen_mixed_class_throughput(),
+            multicast_group_capacity=self.__gen_multicast_group_capacity(),
+            multicast_latency=self.__gen_multicast_latency(),
+            scaled_group_forwarding_matrix=self.__gen_scale_group_throughput(),
         )
 
     def __gen_mc_definition(self, protocol_segments) -> dict:
@@ -551,24 +551,24 @@ class Converter3918:
         force_leave = mc_def.legacy_force_leave_to_all_routers_group
         return dict(
             comments=mc_def.legacy_comments,
-            igmp_version=convert_igmp_version(mc_def.legacy_igmp_version),
-            igmp_join_interval=mc_def.legacy_igmp_join_interval,
-            igmp_leave_interval=mc_def.legacy_igmp_leave_interval,
-            use_igmp_shaping=mc_def.legacy_use_igmp_shaping,
-            use_igmp_source_address=mc_def.legacy_use_igmp_source_address,
             force_leave_to_all_routers_group=force_leave,
+            item_id=mc_def.legacy_item_id,
             max_igmp_frame_rate=mc_def.legacy_max_igmp_frame_rate,
+            mc_address_step_value=mc_def.legacy_mc_address_step_value,
             mc_ip_v4_start_address=(mc_def.legacy_mc_ip_v4_start_address),
             mc_ip_v6_start_address=(mc_def.legacy_mc_ip_v6_start_address),
-            mc_address_step_value=mc_def.legacy_mc_address_step_value,
+            igmp_join_interval=mc_def.legacy_igmp_join_interval,
+            igmp_leave_interval=mc_def.legacy_igmp_leave_interval,
+            igmp_version=convert_igmp_version(mc_def.legacy_igmp_version),
             stream_definition=mc_seg_result,
             uc_flow_def=dict(
                 comment=uc_def.legacy_comments,
-                topology=topology,
                 direction=direction,
                 stream_definition=uc_seg_result,
+                topology=topology,
             ),
-            item_id=mc_def.legacy_item_id,
+            use_igmp_shaping=mc_def.legacy_use_igmp_shaping,
+            use_igmp_source_address=mc_def.legacy_use_igmp_source_address,
         )
 
     def gen(self) -> dict:
@@ -576,13 +576,13 @@ class Converter3918:
         id_map = self.__gen_port_id_map(tester_id_map)
         segments = self.__gen_profile()
         return dict(
-            username="3918",
-            port_identities=self.__gen_port_identity(tester_id_map),
             config=dict(
                 mc_definition=self.__gen_mc_definition(segments),
-                protocol_segments=segments,
                 ports_configuration=self.__gen_port_config(id_map, segments),
+                protocol_segments=segments,
                 test_configuration=self.__gen_test_config(),
                 test_types_configuration=self.__gen_test_type_config(),
             ),
+            port_identities=self.__gen_port_identity(tester_id_map),
+            username="3918",
         )

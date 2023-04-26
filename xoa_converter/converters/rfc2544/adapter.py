@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 def convert_base_mac_address(mac_address: str) -> str:
     prefix = [hex(int(i)) for i in mac_address.split(",")]
-    return ":".join([p.replace("0x", "").zfill(2).upper() for p in prefix]).lower()
+    return "".join([p.replace("0x", "").zfill(2).upper() for p in prefix]).lower()
 
 
 class Converter2544:

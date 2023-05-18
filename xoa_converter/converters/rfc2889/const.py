@@ -83,14 +83,6 @@ class LegacyRateResultScopeType(Enum):
     PER_SOURCE_PORT = "persrcportresult"
 
 
-# special_type_map = {
-#     "ip": "ipv4",
-#     "mldv2_ar": "mldv2ar",
-#     "igmpv3_mr": "igmpv3mr",
-#     "igmpv3_gr": "igmpv3gr",
-# }
-
-
 class LegacyTestType(Enum):
     RATE_TEST = "RateTest"
     CONGESTION_CONTROL = "CongestionControl"
@@ -153,10 +145,6 @@ class LegacySegmentType(Enum):
         OSegmentType[f"RAW_{i}"] = f"raw_{i}"  # type: ignore
 
     @property
-    def core(self):
-        return SegmentType[self.name]
-
-    @property
     def is_raw(self) -> bool:
         return self.value.lower().startswith("raw")
 
@@ -182,6 +170,7 @@ class TestPortMacMode(Enum):
     def is_use_learning_base_address(self):
         return self == TestPortMacMode.USE_LEARNING_MAC_BASE_ADDRESS
 
+
 class LearningPortDMacMode(Enum):
     USE_TEST_PORT_MAC = "UseTestPortMac"
     USE_BROADCAST = "UseBroadcast"
@@ -189,6 +178,7 @@ class LearningPortDMacMode(Enum):
     @property
     def is_use_broadcast(self):
         return self == LearningPortDMacMode.USE_BROADCAST
+
 
 class LearningSequencePortDMacMode(Enum):
     USE_INCREMENTING_MAC_ADDRESSES = "UseIncrementingMacAddresses"
@@ -333,3 +323,10 @@ class LegacyFecMode(Enum):
     ON = "on"
     OFF = "off"
     FC_FEC = "FIRECODE"
+
+
+class LatencyMode(Enum):
+    FIRST2LAST = "First_To_Last"
+    LAST2LAST = "Last_To_Last"
+    FIRST2FIRST = "First_To_First"
+    LAST2FIRST = "Last_To_First"

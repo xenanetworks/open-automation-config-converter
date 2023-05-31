@@ -10,7 +10,6 @@ from typing import (
 )
 from pydantic import BaseModel
 from pydantic.fields import Field
-from operator import attrgetter
 
 if TYPE_CHECKING:
     from xoa_converter.converters.rfc2544.model import (
@@ -23,25 +22,25 @@ CURRENT_FILE_PARENT_PATH = Path(__file__).parent.resolve()
 SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / "segment_refs"
 
 
+
 class PortIdentity(BaseModel):
     tester_id: str
-    tester_index: int
     module_index: int
     port_index: int
 
     @property
     def name(self) -> str:
-        return f"P-{self.tester_index}-{self.module_index}-{self.port_index}"
+        return f"P-{self.tester_id}-{self.module_index}-{self.port_index}"
 
 
 class TestParameters(BaseModel):
     username: str
-    port_identities: Dict[str, Dict]
-    config: Dict
+    port_identities: List[PortIdentity]
+    config: BaseModel
 
     @property
     def get_testers_ids(self) -> Set[str]:
-        return set(map(attrgetter("tester_id"), self.port_identities.values()))
+        return set(port.tester_id for port in self.port_identities)
 
 
 class LegacySegmentField(BaseModel):

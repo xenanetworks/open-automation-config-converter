@@ -42,6 +42,15 @@ class LegacyDurationFrameUnit(Enum):
     FIELD_10E6_FRAMES = "mframes"
     FIELD_10E9_FRAMES = "gframes"
 
+    @property
+    def scale(self) -> int:
+        return {
+            LegacyDurationFrameUnit.FRAMES: 1,
+            LegacyDurationFrameUnit.FIELD_10E3_FRAMES: 1e3,
+            LegacyDurationFrameUnit.FIELD_10E6_FRAMES: 1e6,
+            LegacyDurationFrameUnit.FIELD_10E9_FRAMES: 1e9,
+        }[self]
+
 
 class LegacyTrafficDirection(Enum):
     EAST_TO_WEST = "east_west"

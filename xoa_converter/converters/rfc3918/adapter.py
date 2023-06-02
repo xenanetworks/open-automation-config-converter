@@ -49,7 +49,7 @@ class Converter3918:
                 lpd = cfg.legacy_payload_definition
                 sp = lpd.legacy_payload_pattern.split(",")
                 lpt_list = [hex(int(i)).replace("0x", "").zfill(2) for i in sp]
-                payload_pattern = "0x" + "".join(lpt_list)
+                payload_pattern = "".join(lpt_list)
 
                 lrt = cfg.legacy_rate_type
                 rate_type = convert_rate_type(lrt)
@@ -522,7 +522,7 @@ class Converter3918:
 
         lpp = mc_def_seg.legacy_payload_definition.legacy_payload_pattern
         bytes_str = bytes([int(i) for i in lpp.split(",")]).hex()
-        mc_seg_result["payload_pattern"] = f"0x{bytes_str}"
+        mc_seg_result["payload_pattern"] = bytes_str
         lrt = mc_def_seg.legacy_rate_type
         mc_seg_result["rate_type"] = convert_rate_type(lrt)
         mc_seg_result["rate_fraction"] = mc_def_seg.legacy_rate_fraction
@@ -534,7 +534,7 @@ class Converter3918:
         upp = uc_def_seg.legacy_payload_definition.legacy_payload_pattern
         ubytes = bytes([int(i) for i in upp.split(",")]).hex()
 
-        uc_seg_result["payload_pattern"] = f"0x{ubytes}"
+        uc_seg_result["payload_pattern"] = ubytes
 
         ulrt = convert_rate_type(uc_def_seg.legacy_rate_type)
         uc_seg_result["rate_type"] = ulrt

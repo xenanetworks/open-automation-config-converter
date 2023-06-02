@@ -26,7 +26,7 @@ class MacAddress(str):
     @classmethod
     def validate(cls, value) -> "MacAddress":
         if not value:
-            value = "00:00:00:00:00:00"
+            value = "000000000000"
         validate_value = (
             value.upper()
             .replace("0x", "")
@@ -40,7 +40,7 @@ class MacAddress(str):
             if i not in "0123456789ABCDEF":
                 raise ValueError(f"{value} is not a valid mac address!")
 
-        return cls(":".join(re.findall(".{2}", validate_value)))
+        return cls("".join(re.findall(".{2}", validate_value)))
 
     @property
     def hexstring(self) -> str:
@@ -69,7 +69,7 @@ class MacAddress(str):
 
     @property
     def is_empty(self) -> bool:
-        return not self or self == MacAddress("00:00:00:00:00:00")
+        return not self or self == MacAddress("000000000000")
 
     def modify(self, change_dic: Dict[int, int]) -> "MacAddress":
         int_list = list(self.bytearrays)

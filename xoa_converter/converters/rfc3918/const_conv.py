@@ -93,7 +93,7 @@ def convert_payload_type(string: str) -> str:
 
 
 def convert_base_mac_address(mac_address: str):
-    return ":".join(
+    return "".join(
         [hex(int(i)).replace("0x", "").zfill(2).upper() for i in mac_address.split(",")]
     )
 

@@ -1,13 +1,17 @@
 Introduction
 =========================================
 
-Xena's test suite applications have only been for Windows platform for a long time. Moving forward, all of Xena's existing and future test suites will be included in Xena OpenAutomation, which is not limited to Windows anymore. 
+The XOA Test Config Converter is an open-source tool hosted on Xena Networks' GitHub repository. It is designed to help users migrate their existing Valkyrie test suite configurations into the XOA format, enabling a seamless transition to the XOA ecosystem for network automation and testing.
 
-We have developed this test configuration converter and made it into a Python package to help users easily migrate their existing Windows test suite configurations ( `.v2544` for :term:`Valkyrie2544`, `.v2889` for :term:`Valkyrie2889`, `.v3918` for :term:`Valkyrie3918`, and `.v1564` for :term:`Valkyrie1564`) into :term:`XOA`.
+Key features of the XOA Test Config Converter include:
 
-For users of XOA who only uses the web GUI to create, import and run tests, there is no need to use this Python package, because :term:`XOA Core` is already using this converter.
+1. Conversion support: The tool supports conversion of Valkyrie test suite configuration files to XOA-compatible format, facilitating the integration of existing test cases into the XOA framework.
 
-This converter is meant for those who want to integrate XOA test suites into their own Python environment without using the web GUI at all.
+2. Ease of use: The XOA Test Config Converter is designed to be user-friendly, with a straightforward process for converting test suite configuration files.
+
+3. Compatibility: The converter ensures that the migrated test suite configurations are compatible with XOA Core and can be executed within the XOA ecosystem.
+
+The `official documentation <https://docs.xenanetworks.com/projects/xoa-config-converter>`_ offers a comprehensive guide on how to install and use the XOA Test Config Converter. It covers topics such as setting up the environment, converting test suite configuration files, and understanding the output format. 
 
 .. note::
 

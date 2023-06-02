@@ -3,13 +3,15 @@
 Xena OpenAutomation (XOA) Test Configuration Converter is a supporting tool for users to quickly migrate their Valkyrie test suite configurations into XOA.
 
 ## Introduction
-Xena's test suite applications have only been for Windows platform for a long time. Moving forward, all of Xena's existing and future test suites will be included in Xena OpenAutomation, which is not limited to Windows anymore. 
+The XOA Test Config Converter is an open-source tool hosted on Xena Networks' GitHub repository. It is designed to help users migrate their existing Valkyrie test suite configurations into the XOA format, enabling a seamless transition to the XOA ecosystem for network automation and testing.
 
-We have developed this test configuration converter and made it into a Python package to help users easily migrate their existing Windows test suite configurations (`.v2544` for [Valkyrie2544](https://xenanetworks.com/product/valkyrie2544/), `.v2889` for [Valkyrie2889](https://xenanetworks.com/product/valkyrie2889/), `.v3918` for [Valkyrie3918](https://xenanetworks.com/product/valkyrie3918/), and `.v1564` for [Valkyrie1564](https://xenanetworks.com/product/valkyrie1564/)) into `XOA`.
+Key features of the XOA Test Config Converter include:
 
-For users of XOA who only uses the web GUI to create, import and run tests, there is no need to use this Python package, because [XOA Core](https://github.com/xenanetworks/open-automation-core) is already using this converter.
+1. Conversion support: The tool supports conversion of Valkyrie test suite configuration files to XOA-compatible format, facilitating the integration of existing test cases into the XOA framework.
 
-This converter is meant for those who want to integrate XOA test suites into their own Python environment without using the web GUI at all.
+2. Ease of use: The XOA Test Config Converter is designed to be user-friendly, with a straightforward process for converting test suite configuration files.
+
+3. Compatibility: The converter ensures that the migrated test suite configurations are compatible with XOA Core and can be executed within the XOA ecosystem.
 
 > The purpose of XOA Converter is ONLY to convert Xena Valkyrie test suit applications' configuration files into XOA's configuration files. Thus only four test suite types are supported by XOA Converter as the source config files. 
 

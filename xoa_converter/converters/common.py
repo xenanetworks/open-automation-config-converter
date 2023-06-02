@@ -25,23 +25,22 @@ SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / "segment_refs"
 
 class PortIdentity(BaseModel):
     tester_id: str
-    tester_index: int
     module_index: int
     port_index: int
 
     @property
     def name(self) -> str:
-        return f"P-{self.tester_index}-{self.module_index}-{self.port_index}"
+        return f"P-{self.tester_id}-{self.module_index}-{self.port_index}"
 
 
 class TestParameters(BaseModel):
     username: str
-    port_identities: Dict[str, Dict]
-    config: Dict
+    port_identities: List[PortIdentity]
+    config: BaseModel
 
     @property
     def get_testers_ids(self) -> Set[str]:
-        return set(map(attrgetter("tester_id"), self.port_identities.values()))
+        return set(map(attrgetter("tester_id"), self.port_identities))
 
 
 class LegacySegmentField(BaseModel):
@@ -77,11 +76,11 @@ def load_segment_refs_json(segment_type_value: str) -> SegmentRef:
 
 def convert_protocol_segments(
     stream_profile_handler: "LegacyStreamProfile2544",
-) -> Dict:
-    protocol_segments_profile = {}
+) -> List:
+    protocol_segments_profile = []
 
     for profile in stream_profile_handler.entity_list:
-        header_segments = []
+        segments = []
 
         for hs in profile.stream_config.header_segments:
             hw_modifiers = {}
@@ -127,13 +126,12 @@ def convert_protocol_segments(
                 segment_value = segment_value[field.bit_length :]
 
             segment = dict(
-                segment_type=hs.segment_type.name.lower(),
+                type=hs.segment_type.name.lower(),
                 fields=converted_fields,
                 checksum_offset=segment_ref.checksum_offset,
             )
-            header_segments.append(segment)
+            segments.append(segment)
 
-        protocol_segments_profile[profile.item_id] = dict(
-            header_segments=header_segments
-        )
+        protocol_segments_profile.append(dict(id=profile.item_id, segments=segments))
+
     return protocol_segments_profile

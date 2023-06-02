@@ -1,6 +1,6 @@
 import base64
 import hashlib
-from typing import Any, Dict, TYPE_CHECKING
+from typing import Any, Dict, TYPE_CHECKING, List
 from .model import (
     LegacyPortRoleHandler,
     ValkyrieConfiguration2889 as old_model,
@@ -22,30 +22,31 @@ class Converter2889:
         self.id_map = {}
         self.data = old_model.parse_raw(source_config)
 
-    def __gen_port_identity(self) -> Dict[str, "PortIdentity"]:
+    def __gen_chassis_id_map(self) -> Dict[str, str]:
         chassis_id_map = {}
-        port_identity = {}
-
         for chassis_info in self.data.chassis_manager.chassis_list:
             chassis_id = hashlib.md5(
                 f"{chassis_info.host_name}:{chassis_info.port_number}".encode("utf-8")
             ).hexdigest()
             chassis_id_map[chassis_info.chassis_id] = chassis_id
+        return chassis_id_map
+
+    def __gen_port_identity(self) -> List["PortIdentity"]:
+        chassis_id_map = self.__gen_chassis_id_map()
+        port_identity = []
+
         count = 0
-        chassis_id_list = list(chassis_id_map.values())
         for p_info in self.data.port_handler.entity_list:
             port = p_info.port_ref
             port.chassis_id = chassis_id_map[port.chassis_id]
             identity = dict(
                 tester_id=port.chassis_id,
-                tester_index=chassis_id_list.index(port.chassis_id),
                 module_index=port.module_index,
                 port_index=port.port_index,
             )
 
-            name = f"P-{identity['tester_index']}-{identity['module_index']}-{identity['port_index']}"
-            self.id_map[p_info.item_id] = (f"{name}", f"p{count}")
-            port_identity[f"p{count}"] = identity
+            self.id_map[p_info.item_id] = (f"P-{port.chassis_id}-{port.module_index}-{port.port_index}", f"p{count}")
+            port_identity.append(identity)
             count += 1
         return port_identity
 
@@ -107,10 +108,11 @@ class Converter2889:
             broadr_reach_mode=entity.brr_mode,
             profile_id=profile_id,
             item_id=entity.item_id,
+            tester_id=entity.port_ref.chassis_id,
         )
 
-    def __gen_port_config(self) -> Dict[str, Any]:
-        port_conf: Dict = {}
+    def __gen_port_config(self) -> Dict:
+        port_conf = {}
         for entity in self.data.port_handler.entity_list:
             port_conf[self.id_map[entity.item_id][0]] = self.__gen_port_conf(entity)
         return port_conf

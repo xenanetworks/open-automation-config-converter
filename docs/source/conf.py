@@ -105,7 +105,7 @@ templates_path = ['_templates']
 # -- Options for HTML output -----------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.
-html_theme = 'sphinx_book_theme'
+html_theme = 'furo'
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'xoa_converter_doc'
@@ -115,7 +115,7 @@ htmlhelp_basename = 'xoa_converter_doc'
 html_title = title
 
 # The path to the HTML logo image in the static path, or URL to the logo, or ''.
-html_logo = './_static/xoa_logo.png'
+# html_logo = './_static/xoa_logo.png'
 
 html_favicon = './_static/xoa_favicon_16.png'
 
@@ -129,11 +129,14 @@ html_show_copyright = True
 html_show_sphinx = False
 
 html_theme_options = {
-    "repository_url": "https://github.com/xenanetworks/open-automation-config-converter",
-    "use_repository_button": True,
-    "home_page_in_toc": True,
-    "show_toc_level": 1,
-    "show_navbar_depth": 1,
+    "light_logo": "xoa_logo_light.png",
+    "dark_logo": "xoa_logo_dark.png",
+    "source_repository": "https://github.com/xenanetworks/open-automation-config-converter",
+    "light_css_variables": {
+        "color-brand-primary": "#295341",
+        "color-brand-content": "#295341",
+    },
+    "navigation_with_keys": True,
 }
 
 html_split_index = True

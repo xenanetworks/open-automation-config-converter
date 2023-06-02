@@ -10,7 +10,6 @@ from typing import (
 )
 from pydantic import BaseModel
 from pydantic.fields import Field
-from operator import attrgetter
 
 if TYPE_CHECKING:
     from xoa_converter.converters.rfc2544.model import (
@@ -21,6 +20,7 @@ if TYPE_CHECKING:
 
 CURRENT_FILE_PARENT_PATH = Path(__file__).parent.resolve()
 SEGMENT_REFS_FOLDER = CURRENT_FILE_PARENT_PATH / "segment_refs"
+
 
 
 class PortIdentity(BaseModel):
@@ -40,7 +40,8 @@ class TestParameters(BaseModel):
 
     @property
     def get_testers_ids(self) -> Set[str]:
-        return set(map(attrgetter("tester_id"), self.port_identities))
+        return set(port_idnt.tester_id for port_idnt in self.port_identities)
+
 
 
 class LegacySegmentField(BaseModel):

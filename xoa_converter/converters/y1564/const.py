@@ -19,10 +19,10 @@ class LegacyTidAllocationScope(Enum):
     SOURCE_PORT_ID = "srcportid"
 
 
-class ServiceType(IntEnum):
-    EPL = 0
-    E_LAN = 1
-    E_TREE = 2
+class ServiceType(Enum):
+    EPL = "EPL"
+    E_LAN = "E_LAN"
+    E_TREE = "E_TREE"
 
 
 class LossRatioUnit(Enum):
@@ -42,6 +42,23 @@ class TrafficDirection(Enum):
     EAST_TO_WEST = "east_west"
     WEST_TO_EAST = "west_east"
     BIDIR = "bidir"
+
+
+class TrafficSize(Enum):
+    IEEEDefault = "IEEEDefault"
+    CustomSizes = "CustomSizes"
+    Specified = "Specified"
+    Incrementing = "Incrementing"
+    Butterfly = "Butterfly"
+    Random = "Random"
+    MixedSizes = "MixedSizes"
+
+
+class LatencyMode(Enum):
+    Last_To_Last = "Last_To_Last"
+    First_To_Last = "First_To_Last"
+    Last_To_First = "Last_To_First"
+    First_To_First = "First_To_First"
 
 
 class PortGroup(Enum):
@@ -64,3 +81,30 @@ class FramePartType(Enum):
     IPv4 = "IPv4"
     IPv6 = "IPv6"
     UDP = "UDP"
+
+
+class ColorMode(Enum):
+    ColorBlind = "ColorBlind"
+    ColorAware = "ColorAware"
+
+
+class CouplingFlag(Enum):
+    EIR_Bound = "EIR_Bound"
+    CIR_EIR_Bound = "CIR_EIR_Bound"
+
+
+class SubTestType(Enum):
+    CirValidationTest = "CirValidationTest"
+    CirStepLoadTest = "CirStepLoadTest"
+    EirConfigTest = "EirConfigTest"
+    TrafficPolicingTest = "TrafficPolicingTest"
+    CbsConfigTest = "CbsConfigTest"
+    EbsConfigTest = "EbsConfigTest"
+    PerfTest = "PerfTest"
+    Invalid = "Invalid"
+
+
+class MacLearningModeType(Enum):
+    Never = "Never"
+    Once = "Once"
+    EveryTrial = "EveryTrial"

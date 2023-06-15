@@ -10,11 +10,6 @@ class IdentifierBase(BaseModel):
     parent_id: Optional[const.TypeItemUUID] = Field(alias='ParentID', default="")
     label: str = Field(alias='Label')
 
-class IdentifierBase(BaseModel):
-    item_id: const.TypeItemUUID = Field(alias='ItemID')
-    parent_id: Optional[const.TypeItemUUID] = Field(alias='ParentID', default="")
-    label: str = Field(alias='Label')
-
 
 class ChassisItem(BaseModel):
     chassis_id: str = Field(alias="ChassisID")

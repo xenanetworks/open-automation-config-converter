@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import Field, BaseModel
 
@@ -11,13 +11,86 @@ class IdentifierBase(BaseModel):
     label: str = Field(alias='Label')
 
 
+class MacAddressRange(BaseModel):
+    min_val: int = Field(alias='MinVal')
+    max_val: int = Field(alias='MaxVal')
+    step: int = Field(alias='Step')
+    linked_ranges: bool = Field(alias='LinkedRanges')
+    enabled: bool = Field(alias='Enabled')
+
+
+class IpAddressRange(BaseModel):
+    min_val: int = Field(alias='MinVal')
+    max_val: int = Field(alias='MaxVal')
+    step: int = Field(alias='Step')
+    linked_ranges: bool = Field(alias='LinkedRanges')
+    enabled: bool = Field(alias='Enabled')
+
+
+class UdpPortRange(BaseModel):
+    min_val: int = Field(alias='MinVal')
+    max_val: int = Field(alias='MaxVal')
+    step: int = Field(alias='Step')
+    linked_ranges: bool = Field(alias='LinkedRanges')
+    enabled: bool = Field(alias='Enabled')
+
+
+class UsedPortListItem(BaseModel):
+    curr_speed_sel: Union[int, str] = Field(alias='CurrSpeedSel')
+    port_group: const.PortGroup = Field(alias='PortGroup')
+    pair_peer_ref: Optional[str] = Field(alias='PairPeerRef')
+    inter_frame_gap: int = Field(alias='InterFrameGap')
+    pause_mode_on: bool = Field(alias='PauseModeOn')
+    auto_neg_enabled: bool = Field(alias='AutoNegEnabled')
+    pp_auto_neg_enabled: bool = Field(alias='PPAutoNegEnabled')
+    adjust_ppm: int = Field(alias='AdjustPpm')
+    latency_offset: int = Field(alias='LatencyOffset')
+    brr_mode: str = Field(alias='BrrMode')
+    use_custom_port_speed: bool = Field(alias='UseCustomPortSpeed')
+    custom_port_speed: float = Field(alias='CustomPortSpeed')
+    port_speed_unit: str = Field(alias='PortSpeedUnit')
+    reply_arp_requests: bool = Field(alias='ReplyArpRequests')
+    reply_ndp_requests: bool = Field(alias='ReplyNdpRequests')
+    reply_ping_requests: bool = Field(alias='ReplyPingRequests')
+    reply_ping_v6_requests: bool = Field(alias='ReplyPingV6Requests')
+    send_gratuitous_arp: bool = Field(alias='SendGratuitousArp')
+    ip_address: str = Field(alias='IpAddress')
+    ip_routing_prefix: int = Field(alias='IpRoutingPrefix')
+    ip_gateway: str = Field(alias='IpGateway')
+    ip_address_v6: str = Field(alias='IpAddressV6')
+    ip_routing_prefix_v6: int = Field(alias='IpRoutingPrefixV6')
+    ip_gateway_v6: str = Field(alias='IpGatewayV6')
+    ip_gateway_mac_address: str = Field(alias='IpGatewayMacAddress')
+    public_ip_address: str = Field(alias='PublicIpAddress')
+    public_ip_routing_prefix: int = Field(alias='PublicIpRoutingPrefix')
+    public_ip_address_v6: str = Field(alias='PublicIpAddressV6')
+    public_ip_routing_prefix_v6: int = Field(alias='PublicIpRoutingPrefixV6')
+    mac_address_range: MacAddressRange = Field(alias='MacAddressRange')
+    ip_address_range: IpAddressRange = Field(alias='IpAddressRange')
+    udp_port_range: UdpPortRange = Field(alias='UdpPortRange')
+    range_loop_mode: str = Field(alias='RangeLoopMode')
+    remote_loop_ip_address: str = Field(alias='RemoteLoopIpAddress')
+    remote_loop_ip_v6_address: str = Field(alias='RemoteLoopIpV6Address')
+    remote_loop_mac_address: str = Field(alias='RemoteLoopMacAddress')
+    resource_used: bool = Field(alias='ResourceUsed')
+    child_resource_used: bool = Field(alias='ChildResourceUsed')
+    resource_index: int = Field(alias='ResourceIndex')
+
+
+class UsedModuleListItem(BaseModel):
+    used_port_list: List[UsedPortListItem] = Field(alias='UsedPortList')
+    resource_used: bool = Field(alias='ResourceUsed')
+    child_resource_used: bool = Field(alias='ChildResourceUsed')
+    resource_index: int = Field(alias='ResourceIndex')
+
+
 class ChassisItem(BaseModel):
     chassis_id: str = Field(alias="ChassisID")
     host_name: str = Field(alias="HostName")
     port_number: int = Field(alias="PortNumber")
     password: str = Field(alias="Password")
     connection_type: str = Field(alias="ConnectionType")
-    used_module_list: List = Field(alias="UsedModuleList")
+    used_module_list: List[UsedModuleListItem] = Field(alias='UsedModuleList')
     resource_index: int = Field(alias="ResourceIndex")
     resource_used: bool = Field(alias="ResourceUsed")
     child_resource_used: bool = Field(alias="ChildResourceUsed")
@@ -97,7 +170,7 @@ class TrafficConfig(BaseModel):
     ip_config: IPConfig = Field(alias='IpConfig')
     udp_config: UDPConfig = Field(alias='UdpConfig')
     port_group: const.PortGroup = Field(alias='PortGroup')
-    pair_peer_ref: str = Field(alias='PairPeerRef')
+    pair_peer_ref: Optional[const.TypeItemUUID] = Field(alias='PairPeerRef', default="")
     frame_parts: List[const.FramePartType] = Field(alias='FrameParts')
     mpls_config_list: List[MPLSConfigItem] = Field(alias='MplsConfigList')
     payload_type: const.PayloadType = Field(alias='PayloadType')

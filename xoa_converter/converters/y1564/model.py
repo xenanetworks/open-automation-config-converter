@@ -11,30 +11,6 @@ class IdentifierBase(BaseModel):
     label: str = Field(alias='Label')
 
 
-class MacAddressRange(BaseModel):
-    min_val: int = Field(alias='MinVal')
-    max_val: int = Field(alias='MaxVal')
-    step: int = Field(alias='Step')
-    linked_ranges: bool = Field(alias='LinkedRanges')
-    enabled: bool = Field(alias='Enabled')
-
-
-class IpAddressRange(BaseModel):
-    min_val: int = Field(alias='MinVal')
-    max_val: int = Field(alias='MaxVal')
-    step: int = Field(alias='Step')
-    linked_ranges: bool = Field(alias='LinkedRanges')
-    enabled: bool = Field(alias='Enabled')
-
-
-class UdpPortRange(BaseModel):
-    min_val: int = Field(alias='MinVal')
-    max_val: int = Field(alias='MaxVal')
-    step: int = Field(alias='Step')
-    linked_ranges: bool = Field(alias='LinkedRanges')
-    enabled: bool = Field(alias='Enabled')
-
-
 class UsedPortListItem(BaseModel):
     curr_speed_sel: Union[int, str] = Field(alias='CurrSpeedSel')
     port_group: const.PortGroup = Field(alias='PortGroup')
@@ -65,10 +41,6 @@ class UsedPortListItem(BaseModel):
     public_ip_routing_prefix: int = Field(alias='PublicIpRoutingPrefix')
     public_ip_address_v6: str = Field(alias='PublicIpAddressV6')
     public_ip_routing_prefix_v6: int = Field(alias='PublicIpRoutingPrefixV6')
-    mac_address_range: MacAddressRange = Field(alias='MacAddressRange')
-    ip_address_range: IpAddressRange = Field(alias='IpAddressRange')
-    udp_port_range: UdpPortRange = Field(alias='UdpPortRange')
-    range_loop_mode: str = Field(alias='RangeLoopMode')
     remote_loop_ip_address: str = Field(alias='RemoteLoopIpAddress')
     remote_loop_ip_v6_address: str = Field(alias='RemoteLoopIpV6Address')
     remote_loop_mac_address: str = Field(alias='RemoteLoopMacAddress')

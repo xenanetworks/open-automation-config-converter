@@ -1,8 +1,8 @@
 from enum import Enum as CaseSensitiveEnum, IntEnum
-from typing import NewType, TypeVar
+from typing import NewType, Type, TypeVar
 
 
-TypeItemUUID = NewType("TypeItemUUID", str)
+TypeItemUUID = str
 
 class Enum(CaseSensitiveEnum):
     @classmethod

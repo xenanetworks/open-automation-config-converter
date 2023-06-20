@@ -7,7 +7,7 @@ from xoa_converter.converters.y1564 import const
 
 class IdentifierBase(BaseModel):
     item_id: const.TypeItemUUID = Field(alias='ItemID')
-    parent_id: Optional[const.TypeItemUUID] = Field(alias='ParentID', default="")
+    parent_id: const.TypeItemUUID = Field(alias='ParentID', default="")
     label: str = Field(alias='Label')
 
 
@@ -180,7 +180,7 @@ class UNIItem(IdentifierBase):
 
 
 class FolderItem(IdentifierBase):
-    ...
+    parent_id: Optional[const.TypeItemUUID] = Field(alias='ParentID')
 
 class BandwidthProfileItem(IdentifierBase):
     cir: float = Field(alias='CIR')

@@ -1,8 +1,14 @@
-from enum import Enum as CaseSensitiveEnum, IntEnum
-from typing import NewType, Type, TypeVar
+from enum import Enum as CaseSensitiveEnum
+from typing import List, NewType, Type, TypeVar, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .model import NodeService, NodeFolder
 
 
 TypeItemUUID = str
+TNode = Union["NodeService", "NodeFolder"]
+TNodeList = List["TNode"]
+
 
 class Enum(CaseSensitiveEnum):
     @classmethod
@@ -108,3 +114,8 @@ class MacLearningModeType(Enum):
     Never = "Never"
     Once = "Once"
     EveryTrial = "EveryTrial"
+
+
+class TreeNodeType(Enum):
+    FOLDER = 'FOLDER'
+    SERVICE = 'SERVICE'

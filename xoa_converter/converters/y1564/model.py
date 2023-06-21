@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from pydantic import Field, BaseModel
 
@@ -234,3 +234,44 @@ class ValkyrieConfiguration1564(BaseModel):
     perf_test_params: PerfTestParams = Field(alias='PerfTestParams')
     tid_allocation_scope: const.LegacyTidAllocationScope = Field(alias="TidAllocationScope")
     chassis_list : List[ChassisItem] = Field(alias="ChassisList")
+
+
+class TreeNodeBase(BaseModel):
+    tree_node_type: const.TreeNodeType
+    valkyrie_id: const.TypeItemUUID = Field(default_factory=str)
+    valkyrie_label: str
+
+    @property
+    def is_folder(self) -> bool:
+        return self.tree_node_type == const.TreeNodeType.FOLDER
+
+    @property
+    def is_service(self) -> bool:
+        return self.tree_node_type == const.TreeNodeType.SERVICE
+
+class NodeFolder(TreeNodeBase):
+    tree_node_type: const.TreeNodeType = const.TreeNodeType.FOLDER
+    nodes: const.TNodeList = Field(default_factory=list)
+
+
+class UNI(BaseModel):
+    port_id: str # xoa port id
+    port_group: const.PortGroup
+    ethernet_type: str
+    c_vlan_config: Dict[str, Any]
+    s_vlan_config: Dict[str, Any]
+    ip_config: Dict[str, Any]
+    udp_config: Dict[str, Any]
+    frame_parts: List[const.FramePartType]
+    mpls_config: List[Dict[str, Any]]
+    payload_type: const.PayloadType
+    payload_pattern: str
+
+
+class NodeService(TreeNodeBase):
+    tree_node_type: const.TreeNodeType = const.TreeNodeType.SERVICE
+    service_type: const.ServiceType
+    topology: const.TrafficTopology
+    direction: const.TrafficDirection
+    unis: List[Any]
+

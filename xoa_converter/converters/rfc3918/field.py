@@ -11,7 +11,7 @@ from ipaddress import (
 
 class HexString(str):
     def to_list(self) -> List[str]:
-        return [f"0x{i}" for i in re.findall(r".{2}", self)]
+        return [i for i in re.findall(r".{2}", self)]
 
 
 class MacAddress(str):

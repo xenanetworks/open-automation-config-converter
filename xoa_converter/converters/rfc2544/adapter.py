@@ -106,8 +106,8 @@ class Converter2544:
         flow_option = self.data.test_options.flow_creation_options
         return dict(
             arp_refresh_enabled=learning_options.arp_refresh_enabled,
-            arp_refresh_period_second=learning_options.arp_refresh_period,
-            learning_duration_second=learning_options.learning_duration,
+            arp_refresh_period_second=learning_options.arp_refresh_period / 1000,
+            learning_duration_second=learning_options.learning_duration / 1000,
             learning_rate_pct=learning_options.learning_rate_percent,
             use_gateway_mac_as_dmac=flow_option.use_gateway_mac_as_dmac,
         )

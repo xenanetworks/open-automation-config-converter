@@ -1,4 +1,4 @@
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xoa-converter) [![PyPI](https://img.shields.io/pypi/v/xoa-converter)](https://pypi.python.org/pypi/xoa-converter) ![GitHub](https://img.shields.io/github/license/xenanetworks/open-automation-config-converter) [![Documentation Status](https://readthedocs.org/projects/xena-openautomation-test-config-converter/badge/?version=stable)](https://xena-openautomation-test-config-converter.readthedocs.io/en/stable/?badge=stable)
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/xoa-converter) [![PyPI](https://img.shields.io/pypi/v/xoa-converter)](https://pypi.python.org/pypi/xoa-converter) ![GitHub](https://img.shields.io/github/license/xenanetworks/open-automation-config-converter) [![Documentation Status](https://readthedocs.com/projects/xena-networks-open-automation-config-converter/badge/?version=latest)](https://docs.xenanetworks.com/projects/xoa-config-converter/en/latest/?badge=latest)
 # Xena OpenAutomation Test Config Converter
 Xena OpenAutomation (XOA) Test Configuration Converter is a supporting tool for users to quickly migrate their Valkyrie test suite configurations into XOA.
 

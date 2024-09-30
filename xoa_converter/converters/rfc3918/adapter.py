@@ -584,5 +584,5 @@ class Converter3918:
                 test_types_configuration=self.__gen_test_type_config(),
             ),
             port_identities=self.__gen_port_identity(tester_id_map),
-            username="3918",
+            username="Xena3918",
         )

@@ -401,4 +401,4 @@ class Converter2544:
             test_configuration=self.__gen_test_config(),
             test_types_configuration=self.__gen_test_type_config(),
         )
-        return dict(config=config, port_identities=port_identities, username="hello")
+        return dict(config=config, port_identities=port_identities, username="Xena2544")

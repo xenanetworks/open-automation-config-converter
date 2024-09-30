@@ -354,4 +354,4 @@ class Converter2889:
             general_test_configuration=self.__gen_general_test_config(),
             test_suites_configuration=self.__gen_test_types_config(),
         )
-        return dict(username="RFC-2889", config=config, port_identities=port_identities)
+        return dict(username="Xena2889", config=config, port_identities=port_identities)

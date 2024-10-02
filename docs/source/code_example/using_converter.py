@@ -15,7 +15,7 @@ async def start():
     # create an instance of xoa core controller
     c = await controller.MainController()
 
-    # open and read valkyrie test config my_old2544_config.v2544
+    # open and read xena test config my_old2544_config.v2544
     with open(OLD_CONFIG_FILE) as f:
         app_data = f.read()
 

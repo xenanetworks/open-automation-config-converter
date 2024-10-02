@@ -45,10 +45,10 @@ def get_short_version(rel_path):
 company = f"Teledyne LeCroy Xena"
 year = datetime.datetime.today().year
 month = datetime.datetime.today().month
-project = f"Xena OpenAutomation Test Configuration Converter"
+project = f"Xena OpenAutomation Converter"
 copyright = f"{year}, {company}"
 author = company
-title = f"Xena OpenAutomation Test Configuration Converter Guide"
+title = f"Xena OpenAutomation Converter Documentation"
 output_basename = f"xoa_converter_doc"
 
 # The full version, including alpha/beta/rc tags.
@@ -76,6 +76,7 @@ extensions = [
     'sphinx.ext.extlinks',
     "sphinx_inline_tabs",
     'sphinx_copybutton',
+    "sphinx_remove_toctrees",
     'sphinx_rtd_theme',
 ]
 add_module_names = False

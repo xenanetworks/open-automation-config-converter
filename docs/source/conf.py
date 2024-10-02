@@ -15,8 +15,7 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../../'))
 
-# import pkg_resources
-
+import datetime
 import codecs
 import os.path
 
@@ -43,10 +42,14 @@ def get_short_version(rel_path):
 
 # -- Project information -----------------------------------------------------
 
-project = u'Xena OpenAutomation Test Configuration Converter'
-copyright = u'2023, Xena Networks'
-author = u'Xena Networks'
-title = u'Xena OpenAutomation Test Configuration Converter Guide'
+company = f"Teledyne LeCroy Xena"
+year = datetime.datetime.today().year
+month = datetime.datetime.today().month
+project = f"Xena OpenAutomation Test Configuration Converter"
+copyright = f"{year}, {company}"
+author = company
+title = f"Xena OpenAutomation Test Configuration Converter Guide"
+output_basename = f"xoa_converter_doc"
 
 # The full version, including alpha/beta/rc tags.
 release = get_version("../../xoa_converter/__init__.py")
@@ -73,6 +76,7 @@ extensions = [
     'sphinx.ext.extlinks',
     "sphinx_inline_tabs",
     'sphinx_copybutton',
+    'sphinx_rtd_theme',
 ]
 add_module_names = False
 autodoc_default_options = {
@@ -105,10 +109,10 @@ templates_path = ['_templates']
 # -- Options for HTML output -----------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.
-html_theme = 'furo'
+html_theme = 'sphinx_rtd_theme'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'xoa_converter_doc'
+htmlhelp_basename = output_basename
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -124,23 +128,36 @@ html_favicon = './_static/xoa_favicon_16.png'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
+# Theme config for Furo
+# html_show_copyright = True
+# html_show_sphinx = False
+# html_theme_options = {
+#     "light_logo": "xoa_logo_light.png",
+#     "dark_logo": "xoa_logo_dark.png",
+#     "source_repository": "https://github.com/xenanetworks/open-automation-config-converter",
+#     "light_css_variables": {
+#         "color-brand-primary": "#295341",
+#         "color-brand-content": "#295341",
+#     },
+#     "navigation_with_keys": True,
+# }
+# html_split_index = True
 
-html_show_copyright = True
-html_show_sphinx = False
-
-html_theme_options = {
-    "light_logo": "xoa_logo_light.png",
-    "dark_logo": "xoa_logo_dark.png",
-    "source_repository": "https://github.com/xenanetworks/open-automation-config-converter",
-    "light_css_variables": {
-        "color-brand-primary": "#295341",
-        "color-brand-content": "#295341",
-    },
-    "navigation_with_keys": True,
+# Theme config for sphinx_rtd_theme
+html_show_sphinx =  False
+html_show_sourcelink = False
+html_logo = './_static/tlc_w1.png'
+html_context = {
+    "display_github": False
 }
-
-html_split_index = True
-
+html_theme_options = {
+    'display_version': True,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': False,
+    'vcs_pageview_mode': 'view',
+    'style_nav_header_background': '#0076c0',
+    'navigation_depth': 2,
+}
 
 # -- Options for Texinfo output -----------------------------------------------------
 
@@ -156,7 +173,7 @@ intersphinx_disabled_domains = ['std']
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'xoa_converter_doc', title, author, 'xoa_converter_doc', '', 'Miscellaneous'),
+    (master_doc, output_basename, title, author, output_basename, title, 'Miscellaneous'),
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -185,7 +202,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [(master_doc, 'xoa_converter_doc.tex', title, author, 'manual'),
+latex_documents = [(master_doc, f"{output_basename}.tex", title, author, 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -197,7 +214,7 @@ latex_logo = './_static/pdf_logo.png'
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'xoa_converter_doc', title, [author], 1)
+    (master_doc, output_basename, title, [author], 1)
 ]
 
 
@@ -207,4 +224,4 @@ epub_author = author
 epub_publisher = 'https://xenanetworks.com'
 epub_copyright = copyright
 epub_show_urls = 'footnote'
-epub_basename = 'xoa_converter_doc'
+epub_basename = output_basename

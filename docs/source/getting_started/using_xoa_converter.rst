@@ -1,4 +1,4 @@
-Convert Valkyrie Test Config into XOA
+Convert Xena Test Config into XOA
 ===================================================
 
 To converter your old test configuration files into new XOA json format, you need to do the following steps.
@@ -65,7 +65,7 @@ Copy your test configuration ``json`` file, e.g. ``my2544_data.json`` into ``/my
             |- /plugin2544
 
 
-Step 5. Convert Test Config from Valkyrie to XOA
+Step 5. Convert Test Config from Xena to XOA
 -------------------------------------------------
 
 First, import ``xoa_core`` and ``xoa_converter`` into your Python code. If you haven't installed ``xoa-core`` Python package in your environment, please go to `XOA Core <https://github.com/xenanetworks/open-automation-core>`_.

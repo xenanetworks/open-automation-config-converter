@@ -11,7 +11,7 @@ Key features of the XOA Test Config Converter include:
 
 3. Compatibility: The converter ensures that the migrated test suite configurations are compatible with XOA Core and can be executed within the XOA ecosystem.
 
-The `official documentation <https://docs.xenanetworks.com/projects/xoa-config-converter>`_ offers a comprehensive guide on how to install and use the XOA Test Config Converter. It covers topics such as setting up the environment, converting test suite configuration files, and understanding the output format. 
+The `official documentation <https://docs.xenanetworks.com/projects/xoa-converter>`_ offers a comprehensive guide on how to install and use the XOA Test Config Converter. It covers topics such as setting up the environment, converting test suite configuration files, and understanding the output format. 
 
 .. note::
 

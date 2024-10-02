@@ -20,7 +20,6 @@ The target audience of this document is test specialists who develop and run aut
 
 	introduction
 	getting_started/index
-	api_doc
 	glossary
 
 
